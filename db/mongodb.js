@@ -25,8 +25,9 @@ var insertDocument = function(db,callback){
 MongoClient.connect(url, function(err, db) {
     assert.equal(null, err);
     console.log("Connected successfully to server");
-    insertDocument(db, function () {
-        db.close();
-    })
 });
+
+exports.url = url;
+exports.mongoclient = MongoClient;
+
 
