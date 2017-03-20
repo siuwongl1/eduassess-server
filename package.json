@@ -5,6 +5,7 @@
     "body-parser": "~1.0.1",
     "element-ui": "^1.2.4",
     "express": "~4.0.0",
+    "mongodb": "^2.2.25",
     "mongoose": "~3.6.13"
   }
 }
