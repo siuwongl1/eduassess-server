@@ -8,17 +8,18 @@ var router = express.Router();
 var userManage = require("./../models/user");
 var co = require('co');
 //router.post('/infos', function (req, res) {
-router.post('/infos', function (req, res) {
+router.get('', function (req, res) {
 //    var {uid,pw} = req.body;
+    //get all users
     var query = {};
     userManage.find(query, function (result) {
         res.json(result);
     });
-})
-router.post('/update', function (req, res) {
+}).put('', function (req, res) {
+    //update
 
-})
-router.post('/register', function (req, res) {
+}).post('', function (req, res) {
+    //register
     var {username,password,type,email} = req.query;
     var person = {username:username,password:password,type:type,email:email};
     userManage.add(person, function (err) {
@@ -32,8 +33,7 @@ router.post('/register', function (req, res) {
             res.json({result: 'ok'});
         }
     });
-})
-router.post('/login', function (req, res) {
+}).post('/login', function (req, res) {
     var {uid,pw} = req.bdoy;
     if (uid && pw) {
         var query = {username: uid, password: pw};
