@@ -7,11 +7,9 @@
 3. mongodb driver
 4. webpack
 5. body-parser
-
 ```
+
 ## 功能模块
 ``` bash
-
- 目前正在开发用户相关api，后续api会持续开放。
-
+>> 目前正在开发用户相关api，后续api会持续开放。
 ```
