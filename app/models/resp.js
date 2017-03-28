@@ -5,7 +5,7 @@
 function ResponseEntity(data, message, code) {
     this.data = data?"":data;
     this.message = message?"":message;
-    this.code = code?0:code;
+    this.statusCode = code?0:code;
 }
 ResponseEntity.prototype = {
     constructor:ResponseEntity,
