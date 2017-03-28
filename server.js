@@ -21,15 +21,15 @@ var port = process.env.PORT || 8080;        // set our port
 var router = express.Router();              // get an instance of the express Router
 // test route to make sure everything is working (accessed at GET http://localhost:8080/ets)
 router.get('/', function(req, res) {
-    res.json({ message: 'Hooray! welcome to our ets!' });
+    res.json({ message: 'Hooray! welcome to our ets api!' });
 });
 
 
 // REGISTER OUR ROUTES -------------------------------
 // all of our routes will be prefixed with /ets
-app.use('/ets', router);
+app.use('/ets/api', router);
 var user = require('./app/routers/user');
-app.use('/ets/user',user);
+app.use('/ets/api/user',user);
 // START THE SERVER
 // =============================================================================
 app.listen(port);
