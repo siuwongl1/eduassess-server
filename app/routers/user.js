@@ -13,7 +13,7 @@ var Valid = require("./../utils/valid");
 var multipart = require('connect-multiparty');
 var multipartMiddleware = multipart();
 //router.post('/infos', function (req, res) {
-router.get('', function (req, res) {
+router.get('', multipartMiddleware,function (req, res) {
     var resp = new ResponseEntity();
     co(function*() {
         var {uid,type,name,cls,pro} = req.query;
@@ -51,7 +51,7 @@ router.get('', function (req, res) {
         res.json(resp);
     });
 });
-router.put('', function (req, res) {
+router.put('',multipartMiddleware, function (req, res) {
     //update user infomation
     var resp = new ResponseEntity();
     co(function *() {
@@ -79,28 +79,22 @@ router.put('', function (req, res) {
         res.json(resp);
     });
 });
-router.post('', function (req, res) {
+router.post('', multipartMiddleware,function (req, res) {
     //register user
     var resp = new ResponseEntity();
     co(function *() {
-        var {username,password,type,email} = req.body;
+        var {uid,pw,type,email} = req.body;
         if (Valid.validEmail(email)) {
-            var person = {username: username, password: password, type: type, email: email};
-            userManage.add(person, function (inserted) {
-                if (inserted.err) {
-                    resp.setMessage(inserted.err);
-                    resp.setStatusCode(1);
-                } else {
-                    resp.setStatusCode(0)
-                    resp.setData(inserted.id);
-                }
-                res.json(resp);
-            });
+            var person = {username: uid, password: pw, type: type, email: email};
+            var result= yield userManage.add(person);
+            resp.setStatusCode(0);
+            resp.setData(result.id);
+            resp.setMessage('注册成功');
         } else {
             resp.setStatusCode(1);
             resp.setMessage("邮箱格式不正确");
-            res.json(resp);
         }
+        res.json(resp);
     }).catch((err)=>{
         resp.setMessage(err);
         resp.setStatusCode(1);
@@ -113,14 +107,11 @@ router.delete('', function (req, res) {
 router.post('/login',multipartMiddleware, function (req, res) {
     var resp = new ResponseEntity();
     co(function *() {
-        //var uid = req.body.uid;
-        //var pw = req.body.pw;
-        //var type = req.body.type;
         var {uid,pw,type} = req.body;
         if (uid && pw && type) {
             var query = {username: uid, password: pw, type: type};
-            var result = yield userManage.find(query);
-            if (result.length>0) { // 登录成功
+            var result = yield userManage.login(query);
+            if (result) { // 登录成功
                 resp.setStatusCode(0);
                 resp.setMessage('登录成功');
             } else {

@@ -17,53 +17,71 @@ var UserManage = {
                 var result = yield collection.find(query).project({password:0}).toArray(); //不返回password 敏感字段
                 yield db.close();
                 resolve(result);
+            }).catch((err)=>{
+                reject(err);
             })
         });
         return promise;
-    }, update: function (query, data, cb) {
-        co(function *() {
-            var db = yield MongoClient.connect(url);
-            var collection = yield db.collection('users');
-            var result = yield collection.updateOne(query,{$set:data});
-            yield db.close();
-            if(cb&&typeof cb=='function'){
-                cb(result);
-            }
-        })
-    }, delete: function (uid,cb) {
-        co(function *() {
-            var db = yield MongoClient.connect(url);
-            var collection = yield db.collection('users');
-            var result = yield collection.findOneAndDelete({_id:uid})
-            if(cb&&typeof cb=='function'){
-                cb(result);
-            }
-        })
-    }, add: function (user, cb) {
-        co(function *() {
-            var db = yield MongoClient.connect(url);
-            var collection = yield db.collection('users');
-            var result = yield collection.insertOne(user);
-            yield db.close();
-            if(cb&&typeof cb=='function'){
-                var insertedCount = result.insertedCount();
-                var insertedId = result.insertedId();
-                if(insertedCount==0){
-                    cb({err:"已存在该用户"});
-                }else{
-                    cb({id:insertedId});
+    }, update: function (query, data) {
+        var promise = new Promise((resolve,reject)=>{
+            co(function *() {
+                var db = yield MongoClient.connect(url);
+                var collection = db.collection('users');
+                var result = yield collection.updateOne(query,{$set:data});
+                resolve(result);
+                yield db.close();
+            }).catch((err)=>{
+                reject(err);
+            })
+        });
+        return promise;
+    }, delete: function (uid) {
+        var promise = new Promise((resolve,reject)=>{
+            co(function *() {
+                var db = yield MongoClient.connect(url);
+                var collection = db.collection('users');
+                var result = yield collection.findOneAndDelete({_id:uid})
+                if(result){
+                    resolve(result);
                 }
-            }
+                yield db.close();
+            }).catch((err)=>{
+                reject(err);
+            })
         })
-    }, login: function (uid, pw,cb) {
-        co(function *() {
-            var db = yield MongoClient.connect(url);
-            var collection = db.collection('users');
-            var result = yield collection.findOne({username: uid, password: pw});
-            if(cb&&typeof cb=='function'){
-                cb(result);
-            }
-        })
+        return promise;
+    }, add: function (user) {
+        var promise = new Promise((resolve,reject)=>{
+            co(function *() {
+                var db = yield MongoClient.connect(url);
+                var collection = db.collection('users');
+                try{
+                    var result = yield collection.insertOne(user);
+                    var insertedId = result.insertedId;
+                    resolve({id:insertedId});
+                }catch(err){
+                    reject("该用户已被注册");
+                    console.log("err:"+err);
+                }
+                db.close();
+            }).catch((err)=>{
+                reject(err);
+            });
+        });
+        return promise;
+    }, login: function (query) {
+        var promise = new Promise((resolve,reject)=>{
+            co(function *() {
+                var db = yield MongoClient.connect(url);
+                var collection = db.collection('users');
+                var result = yield collection.findOne(query);
+                resolve(result);
+                yield db.close();
+            }).catch((err)=>{
+                reject(err);
+            });
+        });
+        return promise;
     }
 }
 module.exports = UserManage;
