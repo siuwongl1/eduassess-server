@@ -52,7 +52,7 @@ router.get('', multipartMiddleware,function (req, res) {
         res.json(resp);
     });
 });
-router.put('',multipartMiddleware, function (req, res) {
+router.put('/:id',multipartMiddleware, function (req, res) {
     //修改个人信息
     var resp = new ResponseEntity();
     co(function *() {
@@ -131,24 +131,30 @@ router.post('/login',multipartMiddleware, function (req, res) {
         res.json(resp);
     });
 })
-router.put('/mpw',multipartMiddleware, function (req, res) {
+router.put('/pw/:id',multipartMiddleware, function (req, res) {
     //修改密码
     var resp = new ResponseEntity();
     co(function *() {
-        var {uid,pw,origin} = req.body;
-        if (uid && pw && origin) {
-            var query = {username: uid, password: origin};
-            var data ={password:pw}
-            var result = yield userManage.update(query,data);
-            if (result) { //修改成功
-                resp.setStatusCode(0);
-                resp.setMessage('修改成功');
+        var uid = req.params.id;
+        var {pw,origin} = req.body;
+        if(ObjectID.isValid(uid)){
+            if (uid && pw && origin) {
+                var query = {_id:new ObjectID(uid), password: origin};
+                var data ={password:pw};
+                var affected = yield userManage.update(query,data);
+                if (affected.modifiedCount>0) { //修改成功
+                    resp.setStatusCode(0);
+                    resp.setMessage('修改成功');
+                } else {
+                    resp.setMessage('用户名或密码错误');
+                    resp.setStatusCode(1);
+                }
             } else {
-                resp.setMessage('用户名或密码错误');
+                resp.setMessage("用户名,新密码,原始密码不能为空");
                 resp.setStatusCode(1);
             }
-        } else {
-            resp.setMessage("用户名,新密码,原始密码不能为空");
+        }else{
+            resp.setMessage("uid格式不正确");
             resp.setStatusCode(1);
         }
         res.json(resp);
