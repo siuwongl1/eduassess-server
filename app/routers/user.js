@@ -13,11 +13,12 @@ var Valid = require("./../utils/valid");
 var multipart = require('connect-multiparty');
 var multipartMiddleware = multipart();
 //router.post('/infos', function (req, res) {
-router.get('', multipartMiddleware,function (req, res) {
+router.get('/:id', multipartMiddleware,function (req, res) {
     var resp = new ResponseEntity();
     //查询相关的用户信息，参数为空时，默认查询全部
     co(function*() {
-        var {uid,type,name,cls,pro} = req.query;
+        var uid = req.params.id;
+        var {type,name,cls,pro} = req.query;
         //default to get all users
         var query = {};
         if (uid) {
@@ -56,13 +57,15 @@ router.put('/:id',multipartMiddleware, function (req, res) {
     //修改个人信息
     var resp = new ResponseEntity();
     co(function *() {
-        var {uid,type} = req.body;
+        var uid = req.params.id;
+        console.log(req.body);
+        var {type} = req.body;
         if (ObjectID.isValid(uid) && type) {
             if (type == 1) {
                 //学生信息修改
-                var {uid,cls,name,sex,stuid,pro} = req.body;
-                var user = {uid: uid, cls: cls, name: name, sex: sex, stuid: stuid, pro};
-                userManage.update({_id: new ObjectID(id)}, user);
+                var {cls,name,sex,schoolId,pro} = req.body;
+                var user = { cls: cls, name: name, sex: sex, schoolId: schoolId, pro:pro};
+                userManage.update({_id: new ObjectID(uid)}, user);
             } else if (type == 2) {
                 //教师信息修改
             } else if (type == 3) {
@@ -146,11 +149,11 @@ router.put('/pw/:id',multipartMiddleware, function (req, res) {
                     resp.setStatusCode(0);
                     resp.setMessage('修改成功');
                 } else {
-                    resp.setMessage('用户名或密码错误');
+                    resp.setMessage('用户id或密码错误');
                     resp.setStatusCode(1);
                 }
             } else {
-                resp.setMessage("用户名,新密码,原始密码不能为空");
+                resp.setMessage("用户id,新密码,原始密码不能为空");
                 resp.setStatusCode(1);
             }
         }else{
