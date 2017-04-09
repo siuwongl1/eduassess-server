@@ -1,10 +1,10 @@
 /**
  * Created by SiuWongLi on 17/3/11.
  */
-// BASE SETUP
+// 基础设置
 // =============================================================================
 
-// call the packages we need
+// 调用相关中间件
 var express    = require('express');        // call express
 var app        = express();                 // define our app using express
 var bodyParser = require('body-parser');
@@ -14,7 +14,7 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-var port = process.env.PORT || 8080;        // set our port
+var port = process.env.PORT || 8080;        // 设置端口
 
 // ROUTES FOR OUR API
 // =============================================================================
@@ -23,13 +23,15 @@ var router = express.Router();              // get an instance of the express Ro
 router.get('/', function(req, res) {
     res.json({ message: 'Hooray! welcome to our ets api!' });
 });
-
-
 // REGISTER OUR ROUTES -------------------------------
 // all of our routes will be prefixed with /ets
-app.use('/ets/api', router);
+app.use('/ets/api', router);        //基础router
 var user = require('./app/routers/user');
-app.use('/ets/api/user',user);
+app.use('/ets/api/user',user);      //用户router
+var course = require('./app/routers/course') ;
+app.use('/ets/api/course',course); //课程router
+// var lesson = require('./app/routers/lesson');
+// app.use('/et/api/lesson',lesson);  //课堂router
 // START THE SERVER
 // =============================================================================
 app.listen(port);
