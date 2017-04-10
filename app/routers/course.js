@@ -33,7 +33,39 @@ router.get('/:id', multipartMiddleware, (req, res) => {
         res.json(resp);
     })
 })
-router.get('/fuzzy/:pro/:cls/:period', multipartMiddleware, (req, res) => {
+router.get('/user/:uid',multipartMiddleware,(req,res)=>{
+    // 根据用户id和学期来查询相关课程
+    var resp = new ResponseEntity();
+    co(function *() {
+        var {uid} = req.params;
+        var query = {uid:uid};
+        var result = yield courseManage.find(query);
+        resp.setData(result);
+        resp.setStatusCode(0);
+        res.json(resp);
+    }).catch((err)=>{
+        resp.setStatusCode(1);
+        resp.setMessage(err);
+        res.json(resp);
+    })
+})
+router.get('/user/:uid/period/:period',multipartMiddleware,(req,res)=>{
+    // 根据用户id和学期来查询相关课程
+    var resp = new ResponseEntity();
+    co(function *() {
+        var {uid,period} = req.params;
+        var query = {uid:uid,period:period};
+        var result = yield courseManage.find(query);
+        resp.setData(result);
+        resp.setStatusCode(0);
+        res.json(resp);
+    }).catch((err)=>{
+        resp.setStatusCode(1);
+        resp.setMessage(err);
+        res.json(resp);
+    })
+})
+router.get('/pro/:pro/cls/:cls/period/:period', multipartMiddleware, (req, res) => {
     //根据专业,班级模糊查询相关课程
     var resp = new ResponseEntity();
     co(function *() {
@@ -53,7 +85,7 @@ router.post('', multipartMiddleware, (req, res) => {
     //添加课程
     var resp = new ResponseEntity();
     co(function *() {
-        var {pro, cls, period, name, tid} = req.body;
+        var {pro, cls, period, name, uid} = req.body;
         resp.setStatusCode(1);
         if (!pro) {
             resp.setMessage("专业名称不能为空");
@@ -63,15 +95,15 @@ router.post('', multipartMiddleware, (req, res) => {
             resp.setMessage("学期不能为空");
         }else if(!name){
             resp.setMessage("课程名称不能为空");
-        }else if(!tid){
-            resp.setMessage("教师uid不能为空");
+        }else if(!uid||!ObjectID.isValid(uid)){
+            resp.setMessage("教师uid格式不正确");
         }else {
-            var data = {pro:pro,cls:cls,period:period,name:name,tid:tid};
+            var data = {pro:pro,cls:cls,period:period,name:name,uid:new ObjectID(uid),date:new Date().toLocaleDateString()};
             var result =yield courseManage.add(data);
             resp.setStatusCode(0);
             resp.setData(result.id);
-            res.json(resp);
         }
+        res.json(resp);
     }).catch((err) => {
         resp.setStatusCode(1);
         resp.setMessage(err);
