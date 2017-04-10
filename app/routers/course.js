@@ -34,14 +34,19 @@ router.get('/:id', multipartMiddleware, (req, res) => {
     })
 })
 router.get('/user/:uid',multipartMiddleware,(req,res)=>{
-    // 根据用户id和学期来查询相关课程
+    // 根据教师uid来查询该教师的课程
     var resp = new ResponseEntity();
     co(function *() {
         var {uid} = req.params;
-        var query = {uid:uid};
-        var result = yield courseManage.find(query);
-        resp.setData(result);
-        resp.setStatusCode(0);
+        if(!ObjectID.isValid(uid)){
+            resp.setMessage("uid格式不正确");
+            resp.setStatusCode(1);
+        }else{
+            var query = {uid:new ObjectID(uid)};
+            var result = yield courseManage.find(query);
+            resp.setData(result);
+            resp.setStatusCode(0);
+        }
         res.json(resp);
     }).catch((err)=>{
         resp.setStatusCode(1);
