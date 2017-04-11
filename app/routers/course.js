@@ -59,10 +59,15 @@ router.get('/user/:uid/period/:period',multipartMiddleware,(req,res)=>{
     var resp = new ResponseEntity();
     co(function *() {
         var {uid,period} = req.params;
-        var query = {uid:uid,period:period};
-        var result = yield courseManage.find(query);
-        resp.setData(result);
-        resp.setStatusCode(0);
+        if(ObjectID.isValid(uid)){
+            var query = {uid:ObjectID(uid),period:period};
+            var result = yield courseManage.find(query);
+            resp.setData(result);
+            resp.setStatusCode(0);
+        }else{
+            resp.setStatusCode(1);
+            resp.setMessage("uid格式不正确");
+        }
         res.json(resp);
     }).catch((err)=>{
         resp.setStatusCode(1);
