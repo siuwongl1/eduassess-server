@@ -95,7 +95,7 @@ router.post('', multipartMiddleware, (req, res) => {
     //添加课程
     var resp = new ResponseEntity();
     co(function *() {
-        var {pro, cls, period, name, uid} = req.body;
+        var {pro, cls, period, name, uid,tname} = req.body;
         resp.setStatusCode(1);
         if (!pro) {
             resp.setMessage("专业名称不能为空");
@@ -107,8 +107,10 @@ router.post('', multipartMiddleware, (req, res) => {
             resp.setMessage("课程名称不能为空");
         }else if(!uid||!ObjectID.isValid(uid)){
             resp.setMessage("教师uid格式不正确");
+        }else if(!tname){
+            resp.setMessage("教师名称不能为空");
         }else {
-            var data = {pro:pro,cls:cls,period:period,name:name,uid:new ObjectID(uid),date:new Date().toLocaleDateString()};
+            var data = {pro:pro,cls:cls,period:period,name:name,tname:tname,uid:new ObjectID(uid),date:new Date().toLocaleDateString()};
             var result =yield courseManage.add(data);
             resp.setStatusCode(0);
             resp.setData(result.id);
@@ -143,6 +145,7 @@ router.put('/:id', multipartMiddleware, (req, res) => {
             yield courseManage.update(query,data);
             resp.setStatusCode(0);
         }
+        res.json(resp);
     }).catch((err)=>{
         resp.setStatusCode(1);
         resp.setMessage(err);

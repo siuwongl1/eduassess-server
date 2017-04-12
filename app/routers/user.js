@@ -104,7 +104,7 @@ router.post('/login', multipartMiddleware, function (req, res) {
             var query = {username: uid, password: pw, type: type};
             var result = yield userManage.find(query);
             if (result.length > 0) { // 登录成功
-                resp.setData(result[0]._id);
+                resp.setData(result[0]);
                 resp.setStatusCode(0);
                 resp.setMessage('登录成功');
             } else {

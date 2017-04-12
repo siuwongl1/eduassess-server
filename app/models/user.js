@@ -69,19 +69,6 @@ var UserManage = {
             });
         });
         return promise;
-    }, login: function (query) {
-        var promise = new Promise((resolve,reject)=>{
-            co(function *() {
-                var db = yield MongoClient.connect(url);
-                var collection = db.collection('users');
-                var result = yield collection.findOne(query);
-                resolve(result);
-                yield db.close();
-            }).catch((err)=>{
-                reject(err);
-            });
-        });
-        return promise;
     }
 }
 module.exports = UserManage;
