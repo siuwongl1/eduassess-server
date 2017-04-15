@@ -30,6 +30,8 @@ var user = require('./app/routers/user');
 app.use('/ets/api/user',user);      //用户router
 var course = require('./app/routers/course') ;
 app.use('/ets/api/course',course); //课程router
+var lesson  = require('./app/routers/lesson');
+app.use('/ets/api/lesson',lesson);
 // var lesson = require('./app/routers/lesson');
 // app.use('/et/api/lesson',lesson);  //课堂router
 // START THE SERVER
