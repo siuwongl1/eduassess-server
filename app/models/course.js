@@ -63,6 +63,32 @@ var courseManage = {
             })
         })
         return promise;
+    },
+    push:(query,data)=>{
+        var promise = new Promise((resolve,reject)=>{
+            co(function *() {
+                var db = yield MongoClient.connect(url);
+                var collection = db.collection('courses');
+                var result =yield  collection.update(query,{$push:data})
+                resolve(result);
+            }).catch((err)=>{
+                reject(err);
+            })
+        })
+        return promise;
+    },
+    pop:(query,data)=>{
+        var promise = new Promise((resolve,reject)=>{
+            co(function *() {
+                var db = yield MongoClient.connect(url);
+                var collection = db.collection('courses');
+                var result= yield collection.update(query,{$pop:data});
+                resolve(result);
+            }).catch((err)=>{
+                reject(err);
+            })
+        })
+        return promise;
     }
 }
 module.exports = courseManage;

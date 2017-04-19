@@ -7,7 +7,6 @@ var co = require('co');
 var courseManage = require('./../models/course');
 var ObjectID = require('mongodb').ObjectID;
 var ResponseEntity = require('./../models/resp');
-var Valid = require("./../utils/valid");
 var multipart = require('connect-multiparty');
 var multipartMiddleware = multipart();
 
@@ -152,6 +151,64 @@ router.put('/:id', multipartMiddleware, (req, res) => {
         res.json(resp);
     })
 })
+router.put('/:id/class',multipartMiddleware,(req,res)=>{
+    //申请加入班级
+    var resp = new ResponseEntity();
+    co(function *() {
+        var cid = req.params.id;
+        var {uid,name} =req.body;
+        if(ObjectID.isValid(cid)){
+            if(ObjectID.isValid(uid)){
+                var query  = {_id:cid,'students.uid':{$ne:uid}};
+                var data = {students:{uid:uid,name:name,type:0}};
+                //加入课程的申请列表
+                var result = yield courseManage.push(query,data);
+                console.log(result);
+                resp.setStatusCode(0);
+            }else{
+                resp.setStatusCode(1);
+                resp.setMessage('uid格式不正确');
+            }
+            res.json(resp);
+        }else{
+            resp.setStatusCode(1);
+            resp.setMessage('课程id格式不正确');
+        }
+        res.json(resp);
+    }).catch((err)=>{
+        resp.setStatusCode(1);
+        resp.setMessage(err);
+        res.json(resp);
+    })
+})
+router.put('/:id/students',multipartMiddleware,(req,res)=>{
+   //加入班级审核
+    var resp = new ResponseEntity();
+    co(function *() {
+        var cid = req.params.id;
+        var {uid} = req.body;
+        if(ObjectID.isValid(cid)){
+            if(ObjectID.isValid(uid)){
+                var query = {_id:new ObjectID(cid),'students.uid':uid};
+                var update = {'students.$.type':1};
+                var result = yield courseManage.update(query,update);
+                console.log(result);
+                resp.setStatusCode(0);
+            }else{
+                resp.setStatusCode(1);
+                resp.setMessage('uid格式不正确');
+            }
+        }else{
+            resp.setStatusCode(1);
+            resp.setMessage('课程id格式不正确');
+        }
+        res.json(resp);
+    }).catch((err)=>{
+        resp.setStatusCode(1);
+        resp.setMessage(err);
+        res.json(err);
+    })
+})
 router.delete('/:id', multipartMiddleware, (req, res) => {
     //课程信息删除
     var resp =new ResponseEntity();
@@ -165,9 +222,11 @@ router.delete('/:id', multipartMiddleware, (req, res) => {
             resp.setMessage("uid格式不正确");
             resp.setStatusCode(1);
         }
+        res.json(resp);
     }).catch((err)=>{
         resp.setStatusCode(1);
         resp.setMessage(err);
+        res.json(resp);
     })
 })
 module.exports = router;
