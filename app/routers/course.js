@@ -75,11 +75,11 @@ router.get('/user/:uid/period/:period',multipartMiddleware,(req,res)=>{
     })
 })
 router.get('/pro/:pro/cls/:cls/period/:period', multipartMiddleware, (req, res) => {
-    //根据专业,班级模糊查询相关课程
+    //根据专业,班级查询相关课程
     var resp = new ResponseEntity();
     co(function *() {
         var {pro, cls, period} = req.params;
-        var query = {pro: `/^${pro}/`, cls: `/^${cls}`, period: period};
+        var query = {pro:pro, cls:cls, period: period};
         var result = yield courseManage.find(query);
         resp.setStatusCode(0);
         resp.setData(result);
@@ -151,19 +151,19 @@ router.put('/:id', multipartMiddleware, (req, res) => {
         res.json(resp);
     })
 })
-router.put('/:id/class',multipartMiddleware,(req,res)=>{
+router.put('/class/:cid',multipartMiddleware,(req,res)=>{
     //申请加入班级
     var resp = new ResponseEntity();
     co(function *() {
-        var cid = req.params.id;
+        var cid = req.params.cid;
         var {uid,name} =req.body;
         if(ObjectID.isValid(cid)){
             if(ObjectID.isValid(uid)){
-                var query  = {_id:cid,'students.uid':{$ne:uid}};
+                var query  = {_id:new ObjectID(cid),'students.uid':{$ne:uid}};
                 var data = {students:{uid:uid,name:name,type:0}};
                 //加入课程的申请列表
                 var result = yield courseManage.push(query,data);
-                console.log(result);
+                resp.setData(result.result);
                 resp.setStatusCode(0);
             }else{
                 resp.setStatusCode(1);
