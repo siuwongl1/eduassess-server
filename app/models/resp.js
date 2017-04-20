@@ -3,9 +3,9 @@
  */
 
 function ResponseEntity(data, message, code) {
-    this.data = data?"":data;
-    this.message = message?"":message;
-    this.statusCode = code?0:code;
+    this.data = data===undefined?"":data;
+    this.message = message===undefined?"":message;
+    this.statusCode = code===undefined?0:code;
 }
 ResponseEntity.prototype = {
     constructor:ResponseEntity,

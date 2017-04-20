@@ -32,7 +32,7 @@ router.get('/:id', multipartMiddleware, (req, res) => {
         res.json(resp);
     })
 })
-router.get('/user/:uid',multipartMiddleware,(req,res)=>{
+router.get('/teacher/:uid',multipartMiddleware,(req,res)=>{
     // 根据教师uid来查询该教师的课程
     var resp = new ResponseEntity();
     co(function *() {
@@ -53,7 +53,7 @@ router.get('/user/:uid',multipartMiddleware,(req,res)=>{
         res.json(resp);
     })
 })
-router.get('/user/:uid/period/:period',multipartMiddleware,(req,res)=>{
+router.get('/teacher/:uid/period/:period',multipartMiddleware,(req,res)=>{
     // 根据用户id和学期来查询相关课程
     var resp = new ResponseEntity();
     co(function *() {
@@ -74,6 +74,26 @@ router.get('/user/:uid/period/:period',multipartMiddleware,(req,res)=>{
         res.json(resp);
     })
 })
+router.get('/student/:sid/period/:period',multipartMiddleware,(req,res)=>{
+    //根据学生id来获取课程
+    var resp = new ResponseEntity();
+    co(function *() {
+        var {sid,period} = req.params;
+        if(ObjectID.isValid(sid)){
+            var query  ={period:period,'students.uid':sid};
+            var result = yield courseManage.find(query);
+            resp.setData(result);
+        }else{
+            resp.setMessage('uid格式不正确');
+            resp.setStatusCode(1);
+        }
+        res.json(resp);
+    }).catch((err)=>{
+        resp.setMessage(err);
+        resp.setStatusCode(1);
+        res.json(resp);
+    })
+})
 router.get('/pro/:pro/cls/:cls/period/:period', multipartMiddleware, (req, res) => {
     //根据专业,班级查询相关课程
     var resp = new ResponseEntity();
@@ -81,7 +101,6 @@ router.get('/pro/:pro/cls/:cls/period/:period', multipartMiddleware, (req, res) 
         var {pro, cls, period} = req.params;
         var query = {pro:pro, cls:cls, period: period};
         var result = yield courseManage.find(query);
-        resp.setStatusCode(0);
         resp.setData(result);
         res.json(resp);
     }).catch((err) => {
@@ -192,8 +211,7 @@ router.put('/:id/students',multipartMiddleware,(req,res)=>{
                 var query = {_id:new ObjectID(cid),'students.uid':uid};
                 var update = {'students.$.type':1};
                 var result = yield courseManage.update(query,update);
-                console.log(result);
-                resp.setStatusCode(0);
+                resp.setData(result.result);
             }else{
                 resp.setStatusCode(1);
                 resp.setMessage('uid格式不正确');
