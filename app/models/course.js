@@ -14,7 +14,7 @@ var courseManage = {
             co(function *() {
                 var db = yield MongoClient.connect(url);
                 var collection = db.collection('courses');
-                var result = yield collection.find(query).toArray(); //不返回password 敏感字段
+                var result = yield collection.find(query).toArray();
                 yield db.close();
                 resolve(result);
             }).catch((err) => {
