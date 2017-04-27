@@ -30,14 +30,10 @@ var user = require('./app/routers/user');
 app.use('/ets/api/user',user);      //用户router
 var course = require('./app/routers/course') ;
 app.use('/ets/api/course',course); //课程router
-var lessons  = require('./app/routers/lessons');
-app.use('/ets/api/lessons',lessons);
-var lesson = require('./app/routers/lesson') //单个课堂router
+var lesson = require('./app/routers/lesson') //课堂router
 app.use('/ets/api/lesson',lesson);
-var comment = require('./app/routers/comment');// 单个评论信息router
+var comment = require('./app/routers/comment');// 评论信息router
 app.use('/ets/api/comment',comment);
-var comments = require('./app/routers/comments')
-app.use('/ets/api/comments',comments);
 
 // START THE SERVER
 // =============================================================================

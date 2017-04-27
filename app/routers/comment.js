@@ -29,6 +29,26 @@ router.get('/:uid',multipartMiddleware,function (req,res) {
         res.json(resp);
     })
 })
+router.get('/lesson/:lid',multipartMiddleware,function (req,res) {
+    //根据课堂id查询评论
+    var resp = new ResponseEntity();
+    co(function *() {
+        var {lid} = req.params;
+        if(ObjectID.isValid(lid)){
+            var query = {lid:lid};
+            var result = yield commentManage.find(query);
+            resp.setData(result);
+        }else{
+            resp.setMessage("课堂uid格式不正确");
+            resp.setStatusCode(1);
+        }
+        res.json(resp);
+    }).catch((err)=>{
+        resp.setMessage(err);
+        resp.setStatusCode(1);
+        res.json(resp);
+    })
+})
 router.post('/:lid',multipartMiddleware,function (req,res) {
     //添加评论
     var resp = new ResponseEntity();
