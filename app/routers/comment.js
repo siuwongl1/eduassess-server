@@ -56,4 +56,4 @@ router.post('/:lid',multipartMiddleware,function (req,res) {
     })
 })
 
-module.export = router;
+module.exports = router;

@@ -31,4 +31,4 @@ router.get('/:lid',multipartMiddleware,function (req,res) {
         res.json(resp);
     })
 })
-module.export = router;
+module.exports = router;
