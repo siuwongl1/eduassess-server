@@ -18,7 +18,7 @@ router.get('/:cid',multipartMiddleware,function (req,res) {
     co(function *() {
         var {cid} = req.params;
         if(ObjectID.isValid(cid)){
-            var query = {_id:new ObjectID(cid)};
+            var query = {cid:cid};
             var result =yield lessonManage.find(query);
             resp.setStatusCode(0);
             resp.setData(result);

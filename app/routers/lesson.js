@@ -7,15 +7,22 @@ var co = require('co');
 var lessonManage = require('./../models/lesson');
 var ObjectID = require('mongodb').ObjectID;
 var ResponseEntity = require('./../models/resp');
-var Valid = require("./../utils/valid");
 var multipart = require('connect-multiparty');
 var multipartMiddleware = multipart();
-router.get('/:lid',multipartMiddleware,function (req,res) {
+router.get('/:uid',multipartMiddleware,function (req,res) {
     //根据课堂id查询课堂信息
     var resp = new ResponseEntity();
     co(function *() {
-        var lid = req.params.lid;
-
+        var {uid} = req.params;
+        if(ObjectID.isValid(uid)){
+            var query ={_id:new ObjectID(uid)};
+            var result = yield lessonManage.find(query);
+            resp.setData(result);
+        }else{
+            resp.setMessage('课堂uid格式不正确');
+            resp.setStatusCode(1);
+        }
+        res.json(resp);
     }).catch((err)=>{
         resp.setMessage(err);
         resp.setStatusCode(1);
@@ -26,11 +33,16 @@ router.post('/:cid',multipartMiddleware,function (req,res) {
     //发布新课堂
     var resp= new ResponseEntity();
     co(function *() {
-        var {cid,name,content}  =req.body;
-        var data = {name:name,content:content,date:new Date().toLocaleDateString()};
-        var result = yield lessonManage.add(cid,data);
-        resp.setData(result.id);
-        resp.setStatusCode(0);
+        var {cid} = req.params;
+        var {name,content}  =req.body;
+        if(ObjectID.isValid(cid)){
+            var data = {name:name,content:content,date:new Date().toLocaleDateString()};
+            var result = yield lessonManage.add(data);
+            resp.setData(result.id);
+        }else{
+            resp.setStatusCode(1);
+            resp.setMessage("课程uid格式不正确");
+        }
         res.json(resp);
     }).catch((err)=>{
         resp.setMessage(err);

@@ -1,5 +1,6 @@
 /**
  * Created by SiuWongLi on 17/3/22.
+ * http返回的实体对象
  */
 
 function ResponseEntity(data, message, code) {

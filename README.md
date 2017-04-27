@@ -10,6 +10,7 @@
 3. mongodb driver
 4. webpack
 5. body-parser
+6. jsonwebtoken
 ```
 
 ## 功能模块
