@@ -30,12 +30,12 @@ router.get('/:uid',multipartMiddleware,function (req,res) {
     })
 })
 router.get('/course/:cid',multipartMiddleware,function (req,res) {
-    //根据 course  uid 来查询详细信息
+    //根据 course  uid 来查询课堂信息
     var resp = new ResponseEntity();
     co(function *() {
         var {cid} = req.params;
         if(ObjectID.isValid(cid)){
-            var query = {cid:cid};
+            var query = {cid:new ObjectID(cid)};
             var result =yield lessonManage.find(query);
             resp.setStatusCode(0);
             resp.setData(result);
