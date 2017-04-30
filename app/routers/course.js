@@ -80,7 +80,7 @@ router.get('/student/:sid/period/:period',multipartMiddleware,(req,res)=>{
     co(function *() {
         var {sid,period} = req.params;
         if(ObjectID.isValid(sid)){
-            var query  ={period:period,'students.uid':sid};
+            var query  ={period:period,'students.uid':sid,'students.type':1};
             var result = yield courseManage.find(query);
             resp.setData(result);
         }else{

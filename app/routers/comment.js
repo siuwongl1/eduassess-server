@@ -75,5 +75,26 @@ router.post('/:lid',multipartMiddleware,function (req,res) {
         res.json(resp);
     })
 })
-
+router.put('/like/:cid',multipartMiddleware,function (req,res) {
+    //用户点赞某个评价
+    var resp = new ResponseEntity();
+    co(function *() {
+        var {cid} = req.params;
+        var {uid} =  req.body;
+        if(ObjectID.isValid(cid)&&ObjectID.isValid(uid)){
+            var query = {_id:new ObjectID(cid),'like.uid':{$ne:new ObjectID(uid)}};
+            var data = {$push:{like:new ObjectID(uid)}};
+            var result = yield commentManage.update(query,data);
+            resp.setData(result);
+        }else{
+            resp.setMessage("用户uid或评价uid格式不正确");
+            resp.setStatusCode(1);
+        }
+        res.json(resp);
+    }).catch((err)=>{
+        resp.setStatusCode(1);
+        resp.setMessage(err);
+        res.json(resp);
+    })
+})
 module.exports = router;
