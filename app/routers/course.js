@@ -170,16 +170,39 @@ router.put('/:id', multipartMiddleware, (req, res) => {
         res.json(resp);
     })
 })
-router.put('/class/:cid',multipartMiddleware,(req,res)=>{
+router.get('/class/:cid',multipartMiddleware,(req,res)=>{
+    //查询相应课程未处理的申请列表 ，type为0时为未处理，type为1表示已通过申请
+    var resp = new ResponseEntity();
+    co(function *() {
+        var {cid}  = req.params;
+        if(ObjectID.isValid(cid)){
+            var query = {_id:new ObjectID(cid),'students.type':0};  //根据课程uid查询未处理的加入班级申请
+            var result= yield courseManage.find(query);
+            if(result&&result[0]&&result[0].students){
+                var students= result[0].students;
+                resp.setData(students);
+            }
+        }else{
+            resp.setStatusCode(1);
+            resp.setMessage('课程uid格式不正确');
+        }
+        res.json(resp);
+    }).catch(err=>{
+        resp.setStatusCode(1);
+        resp.setMessage(err);
+        res.json(resp);
+    })
+})
+router.post('/class/:cid',multipartMiddleware,(req,res)=>{
     //申请加入班级
     var resp = new ResponseEntity();
     co(function *() {
         var cid = req.params.cid;
-        var {uid,name} =req.body;
+        var {uid,name,pro,cls,sex,schoolId} =req.body;
         if(ObjectID.isValid(cid)){
             if(ObjectID.isValid(uid)){
                 var query  = {_id:new ObjectID(cid),'students.uid':{$ne:uid}};
-                var data = {students:{uid:uid,name:name,type:0}};
+                var data = {students:{uid:uid,name:name,type:0,pro:pro,cls:cls,sex:sex,schoolId:schoolId}};
                 //加入课程的申请列表
                 var result = yield courseManage.push(query,data);
                 resp.setData(result.result);
@@ -200,21 +223,27 @@ router.put('/class/:cid',multipartMiddleware,(req,res)=>{
         res.json(resp);
     })
 })
-router.put('/:id/students',multipartMiddleware,(req,res)=>{
-   //加入班级审核
+router.put('/class/:cid',multipartMiddleware,(req,res)=>{
+   //加入班级审核,可接受批量处理
     var resp = new ResponseEntity();
     co(function *() {
-        var cid = req.params.id;
-        var {uid} = req.body;
+        var cid = req.params.cid;
+        var {students} = req.body;
         if(ObjectID.isValid(cid)){
-            if(ObjectID.isValid(uid)){
-                var query = {_id:new ObjectID(cid),'students.uid':uid};
-                var update = {'students.$.type':1};
-                var result = yield courseManage.update(query,update);
-                resp.setData(result.result);
-            }else{
+            try{
+                students = JSON.parse(students);
+                for(var i=0;i<students.length;i++){
+                    var value = students[i];
+                    if(ObjectID.isValid(value.uid)){
+                        var query = {_id:new ObjectID(cid),'students.uid':value.uid};
+                        var update = {'students.$.type':1};
+                        var affected = yield courseManage.update(query,update);
+                        resp.setData(affected.result);
+                    }
+                }
+            }catch(err){
                 resp.setStatusCode(1);
-                resp.setMessage('uid格式不正确');
+                resp.setMessage(err);
             }
         }else{
             resp.setStatusCode(1);
