@@ -80,10 +80,10 @@ router.put('/like/:cid',multipartMiddleware,function (req,res) {
     var resp = new ResponseEntity();
     co(function *() {
         var {cid} = req.params;
-        var {uid} =  req.body;
+        var {uid,name} =  req.body;
         if(ObjectID.isValid(cid)&&ObjectID.isValid(uid)){
-            var query = {_id:new ObjectID(cid),'like.uid':{$ne:new ObjectID(uid)}};
-            var data = {$push:{like:new ObjectID(uid)}};
+            var query = {_id:new ObjectID(cid),'like.uid':{$ne:uid}};
+            var data = {$push:{like:{uid:uid,name:name}}};
             var result = yield commentManage.update(query,data);
             resp.setData(result);
         }else{

@@ -32,9 +32,10 @@ var course = require('./app/routers/course') ;
 app.use('/ets/api/course',course); //课程router
 var lesson = require('./app/routers/lesson') //课堂router
 app.use('/ets/api/lesson',lesson);
-var comment = require('./app/routers/comment');// 评论信息router
+var comment = require('./app/routers/comment');// 评价信息router
 app.use('/ets/api/comment',comment);
-
+var remark = require('./app/routers/remark');//评论信息router
+app.use('/ets/api/remark',remark);
 // START THE SERVER
 // =============================================================================
 app.listen(port);

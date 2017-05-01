@@ -30,6 +30,7 @@ var courseManage = {
                 var collection = db.collection('courses');
                 var result = yield collection.insertOne(course);
                 var insertedId = result.insertedId;
+                yield db.close();
                 resolve({id: insertedId});
             }).catch((err) => {
                 reject(err);
@@ -57,6 +58,7 @@ var courseManage = {
                 var db = yield MongoClient.connect(url);
                 var collection = db.collection('courses');
                 var result = yield collection.deleteOne(query);
+                yield db.close();
                 resolve(result);
             }).catch((err)=>{
                 reject(err);
@@ -70,6 +72,7 @@ var courseManage = {
                 var db = yield MongoClient.connect(url);
                 var collection = db.collection('courses');
                 var result =yield  collection.update(query,{$push:data})
+                yield db.close();
                 resolve(result);
             }).catch((err)=>{
                 reject(err);
@@ -83,6 +86,7 @@ var courseManage = {
                 var db = yield MongoClient.connect(url);
                 var collection = db.collection('courses');
                 var result= yield collection.update(query,{$pop:data});
+                yield db.close();
                 resolve(result);
             }).catch((err)=>{
                 reject(err);

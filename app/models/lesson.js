@@ -16,6 +16,7 @@ var lessonManage= {
                 var db = yield MongoClient.connect(url);
                 var collection = db.collection('lessons');
                 var result = yield collection.find(query).toArray();
+                yield db.close();
                 resolve(result);
             }).catch((err)=>{
                 reject(err);
@@ -29,6 +30,7 @@ var lessonManage= {
                 var db = yield MongoClient.connect(url);
                 var collection = db.collection('lessons');
                 var result = yield collection.insertOne(data);
+                yield db.close();
                 resolve(result);
             }).catch((err)=>{
                 reject(err);
@@ -42,6 +44,7 @@ var lessonManage= {
                 var db = yield MongoClient.connect(url);
                 var collection = db.collection('lessons');
                 var result = yield collection.updateOne(query,data);
+                yield db.close();
                 resolve(result);
             }).catch((err)=>{
                 reject(err);

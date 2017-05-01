@@ -80,6 +80,7 @@ router.post('', multipartMiddleware, function (req, res) {
             var person = {username: uid, password: pw, type: type, email: email};
             var result = yield userManage.add(person);
             resp.setStatusCode(0);
+            console.log(result);
             resp.setData(result.id);
             resp.setMessage('注册成功');
         } else {
