@@ -6,14 +6,21 @@ var MongoClient = require('mongodb').MongoClient
 var url = 'mongodb://localhost:27017/ets';
 var co = require('co');
 var remarkManage= {
-    find:function (query) {
+    find:function (query,selection) {
         var promise =new Promise((resolve,reject)=>{
             co(function *() {
                 var db = yield MongoClient.connect(url);
                 var collection = db.collection('remarks');
-                var result = yield collection.find(query).toArray();
+                var result;
+                var count = yield collection.find(query).count();
+                if(selection){
+                    result = yield collection.find(query).skip(selection.skip).limit(selection.limit).toArray();
+                }else{
+                    result = yield collection.find(query).toArray();
+                }
+                var remarks = {data:result,count:count};
                 yield db.close();
-                resolve(result);
+                resolve(remarks);
             }).catch((err)=>{
                 reject(err);
             })

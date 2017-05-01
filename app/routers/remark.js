@@ -12,14 +12,14 @@ var ResponseEntity = require('./../models/resp');
 var multipart = require('connect-multiparty');
 var multipartMiddleware = multipart();
 
-router.get('/:cid',multipartMiddleware,function (req,res) {
+router.get('/:cid/skip/:skip/limit/:limit',multipartMiddleware,function (req,res) {
     //根据评价uid查找相关评论
     var resp = new ResponseEntity();
     co(function *() {
-        var {cid} = req.params;
+        var {cid,skip,limit} = req.params;
         if(ObjectID.isValid(cid)){
             var query = {cid:cid};
-            var result = yield remarkManage.find(query);
+            var result = yield remarkManage.find(query,{skip:parseInt(skip),limit:parseInt(limit)});
             resp.setData(result);
         }else{
             resp.setMessage('评价uid格式不正确');
@@ -41,7 +41,7 @@ router.post('/:cid',multipartMiddleware,function (req,res) {
         if(ObjectID.isValid(cid)&&ObjectID.isValid(uid)){
             var data = {cid:cid,uid:uid,name:name,content:content,lastRemarked:new Date().toLocaleDateString()};
             var result = yield remarkManage.add(data);
-            yield commentManage.pushRemark({cid:cid},{rid:result._id});
+            var commentAffected = yield commentManage.pushRemark({_id:new ObjectID(cid)},{rid:result.insertedId});
             resp.setData(result);
         }else{
             resp.setMessage('评价uid或评价者uid格式不正确');

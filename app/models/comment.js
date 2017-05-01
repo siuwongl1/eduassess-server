@@ -12,7 +12,7 @@ var commentManage= {
         var promise =new Promise((resolve,reject)=>{
             co(function *() {
                 var db = yield MongoClient.connect(url);
-                var collection = db.collection('commemts');
+                var collection = db.collection('comments');
                 var result = yield collection.find(query).toArray();
                 yield db.close();
                 resolve(result);
@@ -26,7 +26,7 @@ var commentManage= {
         var promise = new Promise((resolve,reject)=>{
             co(function *() {
                 var db = yield MongoClient.connect(url);
-                var collection = db.collection('commemts');
+                var collection = db.collection('comments');
                 var result = yield collection.insertOne(data);
                 yield db.close();
                 resolve(result);
@@ -40,7 +40,7 @@ var commentManage= {
         var promise = new Promise((resolve,reject)=>{
             co(function *() {
                 var db = yield MongoClient.connect(url);
-                var collection = db.collection('commemts');
+                var collection = db.collection('comments');
                 var result = yield collection.updateOne(query,data);
                 yield db.close();
                 resolve(result);
@@ -54,7 +54,7 @@ var commentManage= {
         var promise = new Promise((resolve,reject)=>{
             co(function *() {
                 var db = yield MongoClient.connect(url);
-                var collection = db.collection('commemts');
+                var collection = db.collection('comments');
                 var result = yield collection.updateOne(query,{$push:{remarks:data}});
                 yield db.close();
                 resolve(result);
