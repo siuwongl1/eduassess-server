@@ -9,10 +9,8 @@ var remarkManage = require('./../models/remark');
 var commentManage = require('./../models/comment')
 var ObjectID = require('mongodb').ObjectID;
 var ResponseEntity = require('./../models/resp');
-var multipart = require('connect-multiparty');
-var multipartMiddleware = multipart();
 
-router.get('/:cid/skip/:skip/limit/:limit',multipartMiddleware,function (req,res) {
+router.get('/:cid/skip/:skip/limit/:limit',function (req,res) {
     //根据评价uid查找相关评论
     var resp = new ResponseEntity();
     co(function *() {
@@ -32,7 +30,7 @@ router.get('/:cid/skip/:skip/limit/:limit',multipartMiddleware,function (req,res
         res.json(resp);
     })
 })
-router.post('/:cid',multipartMiddleware,function (req,res) {
+router.post('/:cid',function (req,res) {
     //根据评价uid添加评论
     var resp = new ResponseEntity();
     co(function *() {

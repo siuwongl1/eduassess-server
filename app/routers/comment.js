@@ -7,9 +7,7 @@ var co = require('co');
 var commentManage = require('./../models/comment');
 var ObjectID = require('mongodb').ObjectID;
 var ResponseEntity = require('./../models/resp');
-var multipart = require('connect-multiparty');
-var multipartMiddleware = multipart();
-router.get('/:uid',multipartMiddleware,function (req,res) {
+router.get('/:uid',function (req,res) {
     //根据comment uid查询评论的详细信息
     var resp = new ResponseEntity();
     co(function *() {
@@ -29,7 +27,7 @@ router.get('/:uid',multipartMiddleware,function (req,res) {
         res.json(resp);
     })
 })
-router.get('/lesson/:lid',multipartMiddleware,function (req,res) {
+router.get('/lesson/:lid',function (req,res) {
     //根据课堂id查询评论
     var resp = new ResponseEntity();
     co(function *() {
@@ -49,7 +47,7 @@ router.get('/lesson/:lid',multipartMiddleware,function (req,res) {
         res.json(resp);
     })
 })
-router.post('/:lid',multipartMiddleware,function (req,res) {
+router.post('/:lid',function (req,res) {
     //添加评论
     var resp = new ResponseEntity();
     co(function *() {
@@ -75,7 +73,7 @@ router.post('/:lid',multipartMiddleware,function (req,res) {
         res.json(resp);
     })
 })
-router.put('/like/:cid',multipartMiddleware,function (req,res) {
+router.put('/like/:cid',function (req,res) {
     //用户点赞某个评价
     var resp = new ResponseEntity();
     co(function *() {

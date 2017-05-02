@@ -7,9 +7,7 @@ var co = require('co');
 var lessonManage = require('./../models/lesson');
 var ObjectID = require('mongodb').ObjectID;
 var ResponseEntity = require('./../models/resp');
-var multipart = require('connect-multiparty');
-var multipartMiddleware = multipart();
-router.get('/:uid',multipartMiddleware,function (req,res) {
+router.get('/:uid',function (req,res) {
     //根据课堂id查询课堂信息
     var resp = new ResponseEntity();
     co(function *() {
@@ -29,7 +27,7 @@ router.get('/:uid',multipartMiddleware,function (req,res) {
         res.json(resp);
     })
 })
-router.get('/course/:cid',multipartMiddleware,function (req,res) {
+router.get('/course/:cid',function (req,res) {
     //根据 course  uid 来查询课堂信息
     var resp = new ResponseEntity();
     co(function *() {
@@ -50,7 +48,7 @@ router.get('/course/:cid',multipartMiddleware,function (req,res) {
         res.json(resp);
     })
 })
-router.post('/:cid',multipartMiddleware,function (req,res) {
+router.post('/:cid',function (req,res) {
     //发布新课堂
     var resp= new ResponseEntity();
     co(function *() {

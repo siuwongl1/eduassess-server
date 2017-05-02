@@ -7,10 +7,8 @@ var co = require('co');
 var courseManage = require('./../models/course');
 var ObjectID = require('mongodb').ObjectID;
 var ResponseEntity = require('./../models/resp');
-var multipart = require('connect-multiparty');
-var multipartMiddleware = multipart();
 
-router.get('/:id', multipartMiddleware, (req, res) => {
+router.get('/:id', (req, res) => {
     //根据课程id查询详细信息
     var resp = new ResponseEntity();
     co(function *() {
@@ -32,7 +30,7 @@ router.get('/:id', multipartMiddleware, (req, res) => {
         res.json(resp);
     })
 })
-router.get('/teacher/:uid',multipartMiddleware,(req,res)=>{
+router.get('/teacher/:uid',(req,res)=>{
     // 根据教师uid来查询该教师的课程
     var resp = new ResponseEntity();
     co(function *() {
@@ -53,7 +51,7 @@ router.get('/teacher/:uid',multipartMiddleware,(req,res)=>{
         res.json(resp);
     })
 })
-router.get('/teacher/:uid/period/:period',multipartMiddleware,(req,res)=>{
+router.get('/teacher/:uid/period/:period',(req,res)=>{
     // 根据用户id和学期来查询相关课程
     var resp = new ResponseEntity();
     co(function *() {
@@ -74,7 +72,7 @@ router.get('/teacher/:uid/period/:period',multipartMiddleware,(req,res)=>{
         res.json(resp);
     })
 })
-router.get('/student/:sid/period/:period',multipartMiddleware,(req,res)=>{
+router.get('/student/:sid/period/:period',(req,res)=>{
     //根据学生id来获取课程
     var resp = new ResponseEntity();
     co(function *() {
@@ -94,7 +92,7 @@ router.get('/student/:sid/period/:period',multipartMiddleware,(req,res)=>{
         res.json(resp);
     })
 })
-router.get('/pro/:pro/cls/:cls/period/:period', multipartMiddleware, (req, res) => {
+router.get('/pro/:pro/cls/:cls/period/:period', (req, res) => {
     //根据专业,班级查询相关课程
     var resp = new ResponseEntity();
     co(function *() {
@@ -109,7 +107,7 @@ router.get('/pro/:pro/cls/:cls/period/:period', multipartMiddleware, (req, res) 
         res.json(resp);
     })
 })
-router.post('', multipartMiddleware, (req, res) => {
+router.post('', (req, res) => {
     //添加课程
     var resp = new ResponseEntity();
     co(function *() {
@@ -140,7 +138,7 @@ router.post('', multipartMiddleware, (req, res) => {
         res.json(resp);
     })
 })
-router.put('/:id', multipartMiddleware, (req, res) => {
+router.put('/:id', (req, res) => {
     //课程信息修改
     var resp = new ResponseEntity();
     co(function *() {
@@ -170,7 +168,7 @@ router.put('/:id', multipartMiddleware, (req, res) => {
         res.json(resp);
     })
 })
-router.get('/class/:cid',multipartMiddleware,(req,res)=>{
+router.get('/class/:cid',(req,res)=>{
     //查询相应课程未处理的申请列表 ，type为0时为未处理，type为1表示已通过申请
     var resp = new ResponseEntity();
     co(function *() {
@@ -193,7 +191,7 @@ router.get('/class/:cid',multipartMiddleware,(req,res)=>{
         res.json(resp);
     })
 })
-router.post('/class/:cid',multipartMiddleware,(req,res)=>{
+router.post('/class/:cid',(req,res)=>{
     //申请加入班级
     var resp = new ResponseEntity();
     co(function *() {
@@ -223,7 +221,7 @@ router.post('/class/:cid',multipartMiddleware,(req,res)=>{
         res.json(resp);
     })
 })
-router.put('/class/:cid',multipartMiddleware,(req,res)=>{
+router.put('/class/:cid',(req,res)=>{
    //加入班级审核,可接受批量处理
     var resp = new ResponseEntity();
     co(function *() {
@@ -256,7 +254,7 @@ router.put('/class/:cid',multipartMiddleware,(req,res)=>{
         res.json(err);
     })
 })
-router.delete('/:id', multipartMiddleware, (req, res) => {
+router.delete('/:id', (req, res) => {
     //课程信息删除
     var resp =new ResponseEntity();
     co(function *() {
