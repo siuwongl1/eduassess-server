@@ -126,7 +126,7 @@ router.post('', (req, res) => {
         }else if(!tname){
             resp.setMessage("教师名称不能为空");
         }else {
-            var data = {pro:pro,cls:cls,period:period,name:name,tname:tname,uid:new ObjectID(uid),date:new Date().toLocaleDateString()};
+            var data = {pro:pro,cls:cls,period:period,name:name,tname:tname,uid:new ObjectID(uid),date:new Date()};
             var result =yield courseManage.add(data);
             resp.setStatusCode(0);
             resp.setData(result.id);

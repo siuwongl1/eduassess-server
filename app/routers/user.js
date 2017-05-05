@@ -207,12 +207,12 @@ router.post('/pw/:username', function (req, res) {
                         resp.setMessage('该用户不存在');
                         resp.setStatusCode(1);
                     }
+                    client.del(username); //验证成功后删除redis中的captchaCode
                 }).catch(err => {
                     resp.setStatusCode(1);
                     resp.setMessage(err);
                     res.json(resp);
                 })
-                client.del(username);
             } else {
                 resp.setStatusCode(1);
                 resp.setMessage('验证码不正确');

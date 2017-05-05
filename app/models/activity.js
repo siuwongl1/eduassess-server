@@ -1,59 +1,60 @@
 /**
- * Created by SiuWongLi on 17/5/1.
+ * Created by SiuWongLi on 17/5/4.
  */
 var MongoClient = require('mongodb').MongoClient
     , assert = require('assert');
+var ObjectID = require('mongodb').ObjectID;
+// Connection URL
 var url = 'mongodb://localhost:27017/ets';
 var co = require('co');
-var remarkManage= {
-    find:function (query,selection) {
-        var promise =new Promise((resolve,reject)=>{
+
+var activityManage= {
+    find(query,selection){
+        var promise = new Promise((resolve,reject)=>{
             co(function *() {
                 var db = yield MongoClient.connect(url);
-                var collection = db.collection('remarks');
+                var collection = db.collection('activities');
                 var result;
                 var count = yield collection.find(query).count();
-                if(selection){
-                    result = yield collection.find(query).skip(selection.skip).limit(selection.limit).toArray();
+                if(selection&&selection.skip&&selection.limit&&selection.sort){
+                    result = yield collection.find(query).skip(selection.skip).limit(selection.limit).sort(selection.sort).toArray();
                 }else{
                     result = yield collection.find(query).toArray();
                 }
-                var remarks = {data:result,count:count};
+                var activities = {data:result,count:count};
                 yield db.close();
-                resolve(remarks);
+                resolve(activities);
             }).catch((err)=>{
                 reject(err);
             })
         })
         return promise;
     },
-    add:function (data) {
-        var promise = new Promise((resolve,reject)=>{
+    add(data){
+        var promise= new Promise((resolve,reject)=>{
             co(function *() {
                 var db = yield MongoClient.connect(url);
-                var collection = db.collection('remarks');
+                var collection = db.collection('activities');
                 var result = yield collection.insertOne(data);
-                yield db.close();
-                resolve({id: insertedId});
-            }).catch((err)=>{
+                resolve(result);
+            }).catch(err=>{
                 reject(err);
             })
         })
         return promise;
     },
-    update:function (query,data) {
-        var promise = new Promise((resolve,reject)=>{
+    update(query,data){
+        var promise = new Promise((resovle,reject)=>{
             co(function *() {
                 var db = yield MongoClient.connect(url);
-                var collection = db.collection('remarks');
+                var collection = db.collection('activities');
                 var result = yield collection.updateOne(query,data);
-                yield db.close();
-                resolve(result);
-            }).catch((err)=>{
+                resovle(result);
+            }).catch(err=>{
                 reject(err);
             })
         })
         return promise;
     }
 }
-module.exports = remarkManage;
+module.exports = activityManage;

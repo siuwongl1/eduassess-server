@@ -29,7 +29,7 @@ var commentManage= {
                 var collection = db.collection('comments');
                 var result = yield collection.insertOne(data);
                 yield db.close();
-                resolve(result);
+                resolve({id: result.insertedId});
             }).catch((err)=>{
                 reject(err);
             })

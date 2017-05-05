@@ -37,9 +37,9 @@ router.post('/:cid',function (req,res) {
         var {cid} = req.params;
         var {uid,name,content} = req.body;
         if(ObjectID.isValid(cid)&&ObjectID.isValid(uid)){
-            var data = {cid:cid,uid:uid,name:name,content:content,lastRemarked:new Date().toLocaleDateString()};
-            var result = yield remarkManage.add(data);
-            var commentAffected = yield commentManage.pushRemark({_id:new ObjectID(cid)},{rid:result.insertedId});
+            var data = {cid:cid,uid:uid,name:name,content:content,lastRemarked:new Date()};
+            var result = yield remarkManage.add(data); //添加评论
+            var commentAffected = yield commentManage.pushRemark({_id:new ObjectID(cid)},{rid:result.insertedId,name:name,uid:uid});
             resp.setData(result);
         }else{
             resp.setMessage('评价uid或评价者uid格式不正确');

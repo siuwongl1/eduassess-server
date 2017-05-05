@@ -55,7 +55,7 @@ router.post('/:cid',function (req,res) {
         var {cid} = req.params;
         var {name,content}  =req.body;
         if(ObjectID.isValid(cid)){
-            var data = {cid:new ObjectID(cid),name:name,content:content,date:new Date().toLocaleDateString()};
+            var data = {cid:new ObjectID(cid),name:name,content:content,date:new Date()};
             var result = yield lessonManage.add(data);
             resp.setData(result.id);
         }else{
