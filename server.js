@@ -10,28 +10,26 @@ var app = express();                 // define our app using express
 var bodyParser = require('body-parser');
 var multipart = require('connect-multiparty');
 
-
 // configure app to use bodyParser()
 // this will let us get the data from a POST
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
+//amqp
+// var amqp = require('amqplib/callback_api');
+// amqp.connect('amqp://localhost', function(err, conn) {
+//     conn.createChannel(function(err, ch) {
+//         var ex = 'amq.topic';
+//         var key = 'admin';
+//         var msg = 'Hello World!';
 //
-var http = require('http');
-var sockjs = require('sockjs');
+//         ch.assertExchange(ex, 'topic', {durable: true});
+//         ch.publish(ex, key, new Buffer(msg));
+//         console.log(" [x] Sent %s:'%s'", key, msg);
+//     });
+// });
 
-var echo = sockjs.createServer({ sockjs_url: 'http://cdn.jsdelivr.net/sockjs/1.0.1/sockjs.min.js' });
-echo.on('connection', function(conn) {
-    conn.on('data', function(message) {
-        conn.write(message);
-    });
-    conn.on('close', function() {});
-});
 
-var server = require('http').createServer(app);
-echo.installHandlers(server, {prefix:'/echo'});
-
-server.listen(8080);
 //multipart
 app.use(multipart());
 
@@ -61,5 +59,5 @@ app.use('/ets/api/activity',activity);
 
 // START THE SERVER
 // =============================================================================
-// app.listen(port);
+app.listen(port);
 console.log('listening port: ' + port);

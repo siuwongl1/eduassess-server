@@ -8,6 +8,7 @@ var co = require('co');
 var remarkManage = require('./../models/remark');
 var commentManage = require('./../models/comment')
 var ObjectID = require('mongodb').ObjectID;
+var amqp = require('amqplib/callback_api');
 var ResponseEntity = require('./../models/resp');
 
 router.get('/:cid/skip/:skip/limit/:limit',function (req,res) {
@@ -35,11 +36,28 @@ router.post('/:cid',function (req,res) {
     var resp = new ResponseEntity();
     co(function *() {
         var {cid} = req.params;
-        var {uid,name,content} = req.body;
+        var {uid,name,content,originUid,lid} = req.body;
         if(ObjectID.isValid(cid)&&ObjectID.isValid(uid)){
             var data = {cid:cid,uid:uid,name:name,content:content,lastRemarked:new Date()};
             var result = yield remarkManage.add(data); //添加评论
-            var commentAffected = yield commentManage.pushRemark({_id:new ObjectID(cid)},{rid:result.insertedId,name:name,uid:uid});
+            var commentAffected = yield commentManage.pushRemark({_id:new ObjectID(cid)},{rid:result.id,name:name,uid:uid});
+            if(originUid!==uid){
+                //获赞动态推送至获赞人消息
+                amqp.connect('amqp://localhost', function(err, conn) {
+                    conn.createChannel(function (err, ch) {
+                        var ex = 'amq.topic';
+                        var key = originUid;
+                        var message = {content:content,lid:lid,name:name,type:'remark'};
+                        var msg = JSON.stringify(message);
+                        ch.assertExchange(ex, 'topic', {durable: true});
+                        ch.publish(ex, key, new Buffer(msg));
+                        setTimeout(function () {
+                            conn.close();
+                        },500);
+                        console.log(" [x] Sent %s:'%s'", key, msg);
+                    });
+                });
+            }
             resp.setData(result);
         }else{
             resp.setMessage('评价uid或评价者uid格式不正确');
@@ -47,6 +65,7 @@ router.post('/:cid',function (req,res) {
         }
         res.json(resp);
     }).catch(err=>{
+        console.log(err);
         resp.setMessage(err);
         resp.setStatusCode(1);
         res.json(resp);

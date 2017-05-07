@@ -7,6 +7,7 @@ var co = require('co');
 var commentManage = require('./../models/comment');
 var activityManage = require('./../models/activity');
 var ObjectID = require('mongodb').ObjectID;
+var amqp = require('amqplib/callback_api');
 var ResponseEntity = require('./../models/resp');
 router.get('/:uid',function (req,res) {
     //根据comment uid查询评论的详细信息
@@ -49,7 +50,7 @@ router.get('/lesson/:lid',function (req,res) {
     })
 })
 router.post('/:lid',function (req,res) {
-    //添加评论,添加评论的同时将评论动态添加到个人动态
+    //添加评价,同时将评价动态添加到个人动态，消息推送等
     var resp = new ResponseEntity();
     co(function *() {
         var {lid}  = req.params;  //课堂id
@@ -61,6 +62,7 @@ router.post('/:lid',function (req,res) {
                 var result = yield commentManage.add(data);  //添加评论内容
                 var activity = {uid:data.uid,cid:data.lid,type:'comment',date:data.date}
                 var activityResult= yield activityManage.add(activity); //添加我的动态信息
+
                 resp.setData(result);
             }else{
                 resp.setMessage("用户uid格式不正确");
@@ -72,7 +74,6 @@ router.post('/:lid',function (req,res) {
         }
         res.json(resp);
     }).catch((err)=>{
-        console.log(err);
         resp.setMessage(err);
         resp.setStatusCode(1);
         res.json(resp);
@@ -83,7 +84,7 @@ router.put('/like/:cid',function (req,res) {
     var resp = new ResponseEntity();
     co(function *() {
         var {cid} = req.params;
-        var {uid,name} =  req.body;
+        var {uid,name,originUid,content,lid} =  req.body;
         if(ObjectID.isValid(cid)&&ObjectID.isValid(uid)){
             var query = {_id:new ObjectID(cid),'like.uid':{$ne:uid}};
             var data = {$push:{like:{uid:uid,name:name}}};
@@ -91,6 +92,23 @@ router.put('/like/:cid',function (req,res) {
             //Two phase commit in a transaction, I will fix this later .
             var activity  = {cid:cid,type:'like',uid:uid,date:new Date()};
             var activityResult= yield activityManage.add(activity);
+            if(originUid!==uid){
+                //获赞动态推送至获赞人消息
+                amqp.connect('amqp://localhost', function(err, conn) {
+                    conn.createChannel(function (err, ch) {
+                        var ex = 'amq.topic';
+                        var key = originUid;
+                        var message = {content:content,lid:lid,name:name,type:'like'};
+                        var msg = JSON.stringify(message);
+                        ch.assertExchange(ex, 'topic', {durable: true});
+                        ch.publish(ex, key, new Buffer(msg));
+                        setTimeout(function () {
+                            conn.close();
+                        },500);
+                        console.log(" [x] Sent %s:'%s'", key, msg);
+                    });
+                });
+            }
             resp.setData(result);
         }else{
             resp.setMessage("用户uid或评价uid格式不正确");

@@ -78,7 +78,7 @@ router.get('/student/:sid/period/:period',(req,res)=>{
     co(function *() {
         var {sid,period} = req.params;
         if(ObjectID.isValid(sid)){
-            var query  ={period:period,'students.uid':sid,'students.type':1};
+            var query  ={period:period,"students":{$elemMatch:{uid:sid,type:1}}};
             var result = yield courseManage.find(query);
             resp.setData(result);
         }else{
@@ -174,7 +174,7 @@ router.get('/class/:cid',(req,res)=>{
     co(function *() {
         var {cid}  = req.params;
         if(ObjectID.isValid(cid)){
-            var query = {_id:new ObjectID(cid),'students.type':0};  //根据课程uid查询未处理的加入班级申请
+            var query = {_id:new ObjectID(cid)};  //根据课程uid查询未处理的加入班级申请
             var result= yield courseManage.find(query);
             if(result&&result[0]&&result[0].students){
                 var students= result[0].students;

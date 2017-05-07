@@ -34,7 +34,7 @@ var remarkManage= {
                 var collection = db.collection('remarks');
                 var result = yield collection.insertOne(data);
                 yield db.close();
-                resolve({id: insertedId});
+                resolve({id: result.insertedId});
             }).catch((err)=>{
                 reject(err);
             })
