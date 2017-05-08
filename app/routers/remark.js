@@ -10,6 +10,7 @@ var commentManage = require('./../models/comment')
 var ObjectID = require('mongodb').ObjectID;
 var amqp = require('amqplib/callback_api');
 var ResponseEntity = require('./../models/resp');
+var noticeManage = require('./../models/notice');
 
 router.get('/:cid/skip/:skip/limit/:limit',function (req,res) {
     //根据评价uid查找相关评论
@@ -41,19 +42,22 @@ router.post('/:cid',function (req,res) {
             var data = {cid:cid,uid:uid,name:name,content:content,lastRemarked:new Date()};
             var result = yield remarkManage.add(data); //添加评论
             var commentAffected = yield commentManage.pushRemark({_id:new ObjectID(cid)},{rid:result.id,name:name,uid:uid});
+            var message = {origin:originUid,content:content,lid:lid,name:name,type:'remark',date:new Date(),checked:false};
+            var notice = yield noticeManage.add(message);
+            message._id = notice.insertedId;
             if(originUid!==uid){
                 //获赞动态推送至获赞人消息
                 amqp.connect('amqp://localhost', function(err, conn) {
                     conn.createChannel(function (err, ch) {
                         var ex = 'amq.topic';
-                        var key = originUid;
-                        var message = {content:content,lid:lid,name:name,type:'remark'};
+                        var key = message.origin;
                         var msg = JSON.stringify(message);
                         ch.assertExchange(ex, 'topic', {durable: true});
                         ch.publish(ex, key, new Buffer(msg));
                         setTimeout(function () {
                             conn.close();
                         },500);
+                        console.log(err);
                         console.log(" [x] Sent %s:'%s'", key, msg);
                     });
                 });

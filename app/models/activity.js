@@ -14,13 +14,11 @@ var activityManage= {
             co(function *() {
                 var db = yield MongoClient.connect(url);
                 var collection = db.collection('activities');
-                var result;
+                selection.sort = selection.sort ||{date:-1};
+                selection.skip = selection.skip || 0;
+                selection.limit= selection.limit|| 10;
                 var count = yield collection.find(query).count();
-                if(selection&&selection.skip&&selection.limit&&selection.sort){
-                    result = yield collection.find(query).skip(selection.skip).limit(selection.limit).sort(selection.sort).toArray();
-                }else{
-                    result = yield collection.find(query).toArray();
-                }
+                var result = yield collection.find(query).skip(selection.skip).limit(selection.limit).sort(selection.sort).toArray();
                 var activities = {data:result,count:count};
                 yield db.close();
                 resolve(activities);

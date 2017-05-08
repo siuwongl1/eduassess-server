@@ -9,6 +9,7 @@ var activityManage = require('./../models/activity');
 var ObjectID = require('mongodb').ObjectID;
 var amqp = require('amqplib/callback_api');
 var ResponseEntity = require('./../models/resp');
+var noticeManage = require('./../models/notice');
 router.get('/:uid',function (req,res) {
     //根据comment uid查询评论的详细信息
     var resp = new ResponseEntity();
@@ -50,7 +51,7 @@ router.get('/lesson/:lid',function (req,res) {
     })
 })
 router.post('/:lid',function (req,res) {
-    //添加评价,同时将评价动态添加到个人动态，消息推送等
+    //添加评价,同时将评价动态添加到个人动态
     var resp = new ResponseEntity();
     co(function *() {
         var {lid}  = req.params;  //课堂id
@@ -92,13 +93,15 @@ router.put('/like/:cid',function (req,res) {
             //Two phase commit in a transaction, I will fix this later .
             var activity  = {cid:cid,type:'like',uid:uid,date:new Date()};
             var activityResult= yield activityManage.add(activity);
+            var message = {origin:originUid,content:content,lid:lid,name:name,type:'like',date:new Date(),checked:false};
+            var notice = yield noticeManage.add(message);
+            message._id = notice.insertedId;
             if(originUid!==uid){
                 //获赞动态推送至获赞人消息
                 amqp.connect('amqp://localhost', function(err, conn) {
                     conn.createChannel(function (err, ch) {
                         var ex = 'amq.topic';
-                        var key = originUid;
-                        var message = {content:content,lid:lid,name:name,type:'like'};
+                        var key = message.origin;
                         var msg = JSON.stringify(message);
                         ch.assertExchange(ex, 'topic', {durable: true});
                         ch.publish(ex, key, new Buffer(msg));

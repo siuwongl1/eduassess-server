@@ -16,7 +16,7 @@ router.get('/:uid/skip/:skip/limit/:limit',function (req,res) {
     co(function *() {
         var {uid,skip,limit} =  req.params;// 用户id
         if(ObjectID.isValid(uid)){
-            var selection = {skip:parseInt(skip),limit:parseInt(limit),sort:{date:-1}};
+            var selection = {skip:parseInt(skip),limit:parseInt(limit),sort:{date:-1}};  //按时间降序来排序
             var query = {uid:uid};
             var result = yield activityManage.find(query,selection);
             for(var i =0;i<result.data.length;i++){
@@ -50,5 +50,6 @@ router.post('',function (req,res) {
 })
 router.put('',function (req,res) {
     //修改动态信息
+
 })
 module.exports =router;

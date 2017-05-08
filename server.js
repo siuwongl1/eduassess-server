@@ -20,9 +20,8 @@ app.use(bodyParser.json());
 // amqp.connect('amqp://localhost', function(err, conn) {
 //     conn.createChannel(function(err, ch) {
 //         var ex = 'amq.topic';
-//         var key = 'admin';
-//         var msg = 'Hello World!';
-//
+//         var key = '58e6e9322753c9a02be02c';
+//         var msg = JSON.stringify({content:'hello world'});
 //         ch.assertExchange(ex, 'topic', {durable: true});
 //         ch.publish(ex, key, new Buffer(msg));
 //         console.log(" [x] Sent %s:'%s'", key, msg);
