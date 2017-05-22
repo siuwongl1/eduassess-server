@@ -4,9 +4,9 @@
  */
 
 function ResponseEntity(data, message, code) {
-    this.data = data===undefined?"":data;
-    this.message = message===undefined?"":message;
-    this.statusCode = code===undefined?0:code;
+    this.data = data| '';
+    this.message = message| '';
+    this.statusCode = code | 0;
 }
 ResponseEntity.prototype = {
     constructor:ResponseEntity,
@@ -22,6 +22,15 @@ ResponseEntity.prototype = {
         return this.data;
     }, getStatusCode: function () {
         return this.statusCode;
+    },
+    setError:function (err) {
+        if(err && typeof err ==='object' && err.statusCode){
+            this.statusCode = err.statusCode;
+            this.message = err.message;
+        }else{
+            this.statusCode= 1;
+            this.message  = err.toString();
+        }
     }
 }
 module.exports = ResponseEntity;

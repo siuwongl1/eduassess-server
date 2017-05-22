@@ -9,12 +9,16 @@ var commentManage = require('./../models/comment');
 var lessonManage =  require('./../models/lesson');
 var ObjectID = require('mongodb').ObjectID;
 var ResponseEntity = require('./../models/resp');
+var verifyTokenUtil = require('./../utils/VerifyTokenUtil');
 
 router.get('/:uid/skip/:skip/limit/:limit',function (req,res) {
     //查询我的动态信息，时间按由近到远排序
     var resp = new ResponseEntity();
     co(function *() {
-        var {uid,skip,limit} =  req.params;// 用户id
+        var token = req.cookies.token;
+        var payload = yield verifyTokenUtil.verifyToken(token);
+        var {skip,limit} =  req.params;// 用户id
+        var uid = payload.uid;
         if(ObjectID.isValid(uid)){
             var selection = {skip:parseInt(skip),limit:parseInt(limit),sort:{date:-1}};  //按时间降序来排序
             var query = {uid:uid};
@@ -40,8 +44,7 @@ router.get('/:uid/skip/:skip/limit/:limit',function (req,res) {
         }
         res.json(resp);
     }).catch(err=>{
-        resp.setMessage(err);
-        resp.setStatusCode(1);
+        resp.setError(err);
         res.json(resp);
     })
 })
@@ -50,6 +53,5 @@ router.post('',function (req,res) {
 })
 router.put('',function (req,res) {
     //修改动态信息
-
 })
 module.exports =router;

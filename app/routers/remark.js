@@ -11,11 +11,13 @@ var ObjectID = require('mongodb').ObjectID;
 var amqp = require('amqplib/callback_api');
 var ResponseEntity = require('./../models/resp');
 var noticeManage = require('./../models/notice');
+var verifyTokenUtil = require('./../utils/VerifyTokenUtil');
 
 router.get('/:cid/skip/:skip/limit/:limit',function (req,res) {
     //根据评价uid查找相关评论
     var resp = new ResponseEntity();
     co(function *() {
+        var payload= yield verifyTokenUtil.verifyToken(req.cookies.token);
         var {cid,skip,limit} = req.params;
         if(ObjectID.isValid(cid)){
             var query = {cid:cid};
@@ -27,8 +29,7 @@ router.get('/:cid/skip/:skip/limit/:limit',function (req,res) {
         }
         res.json(resp);
     }).catch(err=>{
-        resp.setMessage(err);
-        resp.setStatusCode(1);
+        resp.setError(err);
         res.json(resp);
     })
 })
@@ -37,7 +38,9 @@ router.post('/:cid',function (req,res) {
     var resp = new ResponseEntity();
     co(function *() {
         var {cid} = req.params;
-        var {uid,name,content,originUid,lid} = req.body;
+        var {name,content,originUid,lid} = req.body;
+        var payload = yield verifyTokenUtil.verifyToken(req.cookies.token);
+        var {uid} = payload;
         if(ObjectID.isValid(cid)&&ObjectID.isValid(uid)){
             var data = {cid:cid,uid:uid,name:name,content:content,lastRemarked:new Date()};
             var result = yield remarkManage.add(data); //添加评论
@@ -69,9 +72,7 @@ router.post('/:cid',function (req,res) {
         }
         res.json(resp);
     }).catch(err=>{
-        console.log(err);
-        resp.setMessage(err);
-        resp.setStatusCode(1);
+        resp.setError(err);
         res.json(resp);
     })
 })

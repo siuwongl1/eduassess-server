@@ -10,11 +10,14 @@ var ObjectID = require('mongodb').ObjectID;
 var amqp = require('amqplib/callback_api');
 var ResponseEntity = require('./../models/resp');
 var noticeManage = require('./../models/notice');
+var verifyTokenUtil = require('./../utils/VerifyTokenUtil');
+
 router.get('/:uid',function (req,res) {
     //根据comment uid查询评论的详细信息
     var resp = new ResponseEntity();
     co(function *() {
-        var {uid} = req.params;
+        var payload = yield verifyTokenUtil.verifyToken(req.cookies.token);
+        var {uid} = payload.uid;
         if(ObjectID.isValid(uid)){
             var query = {_id:new ObjectID(uid)};
             var result = yield commentManage.find(query);
@@ -25,8 +28,7 @@ router.get('/:uid',function (req,res) {
         }
         res.json(resp);
     }).catch((err)=>{
-        resp.setStatusCode(1);
-        resp.setMessage(err);
+        resp.setError(err);
         res.json(resp);
     })
 })
@@ -34,6 +36,7 @@ router.get('/lesson/:lid',function (req,res) {
     //根据课堂id查询评论
     var resp = new ResponseEntity();
     co(function *() {
+        var payload = yield verifyTokenUtil.verifyToken(req.cookies.token);
         var {lid} = req.params;
         if(ObjectID.isValid(lid)){
             var query = {lid:lid};
@@ -45,25 +48,26 @@ router.get('/lesson/:lid',function (req,res) {
         }
         res.json(resp);
     }).catch((err)=>{
-        resp.setMessage(err);
-        resp.setStatusCode(1);
+        resp.setError(err);
         res.json(resp);
     })
 })
 router.post('/:lid',function (req,res) {
     //添加评价,同时将评价动态添加到个人动态
     var resp = new ResponseEntity();
+    var token = req.cookies.token;
     co(function *() {
+        var payload = yield verifyTokenUtil.verifyToken(token);
         var {lid}  = req.params;  //课堂id
         if(ObjectID.isValid(lid)){
-            var {content,uid,name} = req.body;  //用户id，评论内容，评论人名称
+            var uid = payload.uid;
+            var {content,name,cid} = req.body;  //用户id，评论内容，评论人名称
             if(ObjectID.isValid(uid)){
-                var data = {content:content,lid:lid,uid:uid,name:name,date:new Date()};
+                var data = {content:content,lid:lid,uid:uid,cid:cid,name:name,date:new Date()};
                 //Two phase commit in a transaction, I will fix this later .
                 var result = yield commentManage.add(data);  //添加评论内容
                 var activity = {uid:data.uid,cid:data.lid,type:'comment',date:data.date}
                 var activityResult= yield activityManage.add(activity); //添加我的动态信息
-
                 resp.setData(result);
             }else{
                 resp.setMessage("用户uid格式不正确");
@@ -75,8 +79,7 @@ router.post('/:lid',function (req,res) {
         }
         res.json(resp);
     }).catch((err)=>{
-        resp.setMessage(err);
-        resp.setStatusCode(1);
+        resp.setError(err);
         res.json(resp);
     })
 })
@@ -84,8 +87,10 @@ router.put('/like/:cid',function (req,res) {
     //用户点赞某个评价
     var resp = new ResponseEntity();
     co(function *() {
+        var payload = yield verifyTokenUtil.verifyToken(req.cookies.token);
         var {cid} = req.params;
-        var {uid,name,originUid,content,lid} =  req.body;
+        var {name,originUid,content,lid} =  req.body;
+        var uid = payload.uid;
         if(ObjectID.isValid(cid)&&ObjectID.isValid(uid)){
             var query = {_id:new ObjectID(cid),'like.uid':{$ne:uid}};
             var data = {$push:{like:{uid:uid,name:name}}};
