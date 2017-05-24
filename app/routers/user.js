@@ -28,7 +28,6 @@ router.get('/:id', function (req, res) {
                 var query = {_id: new ObjectID(id)};
                 var result = yield userManage.find(query);
                 resp.setData(result);
-                resp.setStatusCode(0);
             } else {
                 resp.setStatusCode(1);
                 resp.setMessage("uid格式不正确");
@@ -58,7 +57,7 @@ router.get('/:username/:email', function (req, res) {
                         resp.setStatusCode(1);
                         resp.setMessage(err);
                     } else {
-                        client.set(username, captchaCode, 'EX', 600);//600s
+                        client.setExpireKey(username, captchaCode, 600);//600s
                     }
                 });
             } else {
@@ -222,8 +221,10 @@ router.post('/pw/:username', function (req, res) {
         if (captchaCode === code) {
             var query = {username: username};
             var update = {password: md5(password)};
-            var result = yield userManage.update(query, update);
-            if (result.n !== 1) {
+            console.log(username);
+            var affected = yield userManage.update(query, update);
+            var commandResult =  affected.result;
+            if (commandResult.n !== 1) {
                 resp.setMessage('该用户不存在');
                 resp.setStatusCode(1);
             }

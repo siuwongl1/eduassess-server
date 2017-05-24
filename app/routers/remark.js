@@ -42,7 +42,7 @@ router.post('/:cid',function (req,res) {
         var payload = yield verifyTokenUtil.verifyToken(req.cookies.token);
         var {uid} = payload;
         if(ObjectID.isValid(cid)&&ObjectID.isValid(uid)){
-            var data = {cid:cid,uid:uid,name:name,content:content,lastRemarked:new Date()};
+            var data = {cid:cid,uid:uid,lid:lid,name:name,content:content,lastRemarked:new Date()};
             var result = yield remarkManage.add(data); //添加评论
             var commentAffected = yield commentManage.pushRemark({_id:new ObjectID(cid)},{rid:result.id,name:name,uid:uid});
             var message = {origin:originUid,content:content,lid:lid,name:name,type:'remark',date:new Date(),checked:false};
@@ -60,7 +60,6 @@ router.post('/:cid',function (req,res) {
                         setTimeout(function () {
                             conn.close();
                         },500);
-                        console.log(err);
                         console.log(" [x] Sent %s:'%s'", key, msg);
                     });
                 });

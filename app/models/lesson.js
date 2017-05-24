@@ -51,6 +51,20 @@ var lessonManage= {
             })
         })
         return promise;
+    },
+    delete:function (query) {
+        var promise = new Promise((resolve,reject)=>{
+            co(function *() {
+                var db = yield MongoClient.connect(url);
+                var collection = db.collection('lessons');
+                var result = yield collection.deleteMany(query);
+                yield db.close();
+                resolve(result);
+            }).catch((err)=>{
+                reject(err);
+            })
+        })
+        return promise;
     }
 }
 module.exports = lessonManage;

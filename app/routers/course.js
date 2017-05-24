@@ -5,17 +5,19 @@ var express = require('express');
 var router = express.Router();
 var co = require('co');
 var courseManage = require('./../models/course');
+var lessonManage = require('./../models/lesson');
+var commentManage = require('./../models/comment');
+var remarksManage = require('./../models/remark');
 var ObjectID = require('mongodb').ObjectID;
 var ResponseEntity = require('./../models/resp');
 var verifyTokenUtil = require('./../utils/VerifyTokenUtil');
-
-router.get('/:id', (req, res) => {
+router.get('/:uid', (req, res) => {
     //根据课程id查询详细信息
     var resp = new ResponseEntity();
     co(function *() {
         var payload = yield verifyTokenUtil.verifyToken(req.cookies.token);
         var query = {};
-        var uid = payload.uid;
+        var {uid} = req.params;
         if (ObjectID.isValid(uid)) {
             query = {_id: new ObjectID(uid)};
             var result = yield courseManage.find(query);
@@ -52,15 +54,19 @@ router.get('/teacher/:uid',(req,res)=>{
         res.json(resp);
     })
 })
-router.get('/teacher/:uid/period/:period',(req,res)=>{
+router.get('/period/:period',(req,res)=>{
     // 根据用户id和学期来查询相关课程
     var resp = new ResponseEntity();
     co(function *() {
         var payload = yield verifyTokenUtil.verifyToken(req.cookies.token);
-        var {period} = req.params;
-        var {uid} = payload;
+        var {period,pro} = req.params;
+        var {uid,type} = payload;
         if(ObjectID.isValid(uid)){
-            var query = {uid:ObjectID(uid),period:period};
+            if(type==='2'){  //教师角色
+                var query = {uid:ObjectID(uid),period:period};
+            }else if(type==='3'){
+                var query = {period:period};
+            }
             var result = yield courseManage.find(query);
             resp.setData(result);
             resp.setStatusCode(0);
@@ -78,7 +84,6 @@ router.get('/student/:sid/period/:period',(req,res)=>{
     //根据学生id来获取课程
     var resp = new ResponseEntity();
     co(function *() {
-        console.log(req.cookies.token);
         var payload = yield verifyTokenUtil.verifyToken(req.cookies.token);
         var {sid,period} = req.params;
         if(ObjectID.isValid(sid)){
@@ -151,9 +156,10 @@ router.put('/:id', (req, res) => {
     var resp = new ResponseEntity();
     co(function *() {
         var payload = yield verifyTokenUtil.verifyToken(req.cookies.token);
-        if(payload.type==='2'){
+        var {type} =payload;
+        if(type==='2'|| type==='3'){
             var id = req.params.id;
-            var {pro, cls, period, name} = req.body;
+            var {pro, cls, period, name,tname} = req.body;
             resp.setStatusCode(1);
             if (!pro) {
                 resp.setMessage("专业名称不能为空");
@@ -167,7 +173,7 @@ router.put('/:id', (req, res) => {
                 resp.setMessage("uid格式不正确");
             }else{
                 var query = {_id:new ObjectID(id)};
-                var data ={pro:pro,cls:cls,period:period,name:name};
+                var data ={pro:pro,cls:cls,period:period,name:name,tname:tname};
                 yield courseManage.update(query,data);
                 resp.setStatusCode(0);
             }
@@ -292,8 +298,14 @@ router.delete('/:id', (req, res) => {
             var id = req.params.id;
             if(ObjectID.isValid(id)){
                 var query = {_id:new ObjectID(id)};
-                yield courseManage.delete(query);
-                resp.setStatusCode(0);
+                yield courseManage.delete(query); //删除课程
+                query = {cid:query._id};
+                var lessons = yield lessonManage.find(query);
+                for(var i=0;i<lessons.length;i++){
+                    yield lessonManage.delete({_id:lessons[i]._id});              //删除课堂
+                    yield commentManage.delete({lid:lessons[i]._id.toString()});  //删除评价
+                    yield remarksManage.delete({lid:lessons[i]._id.toString()});  //删除评论
+                }
             }else{
                 resp.setMessage("uid格式不正确");
                 resp.setStatusCode(1);

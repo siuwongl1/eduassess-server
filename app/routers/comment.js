@@ -98,10 +98,10 @@ router.put('/like/:cid',function (req,res) {
             //Two phase commit in a transaction, I will fix this later .
             var activity  = {cid:cid,type:'like',uid:uid,date:new Date()};
             var activityResult= yield activityManage.add(activity);
-            var message = {origin:originUid,content:content,lid:lid,name:name,type:'like',date:new Date(),checked:false};
-            var notice = yield noticeManage.add(message);
-            message._id = notice.insertedId;
             if(originUid!==uid){
+                var message = {origin:originUid,content:content,lid:lid,name:name,type:'like',date:new Date(),checked:false};
+                var notice = yield noticeManage.add(message);
+                message._id = notice.insertedId;
                 //获赞动态推送至获赞人消息
                 amqp.connect('amqp://localhost', function(err, conn) {
                     conn.createChannel(function (err, ch) {

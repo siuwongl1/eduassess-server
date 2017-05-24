@@ -63,6 +63,19 @@ var commentManage= {
             })
         })
         return promise;
+    },
+    delete:function (query) {
+        var promise = new Promise((resolve,reject)=>{
+            co(function *() {
+                var db = yield MongoClient.connect(url);
+                var collection = db.collection('comments');
+                var result = yield collection.deleteMany(query);
+                resolve(result);
+            }).catch(err=>{
+                reject(err);
+            })
+        })
+        return promise;
     }
 }
 module.exports = commentManage;

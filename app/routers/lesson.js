@@ -8,6 +8,8 @@ var lessonManage = require('./../models/lesson');
 var ObjectID = require('mongodb').ObjectID;
 var ResponseEntity = require('./../models/resp');
 var verifyTokenUtil = require('./../utils/VerifyTokenUtil');
+var commentManage = require('./../models/comment');
+var remarksManage = require('./../models/remark');
 
 router.get('/:uid',function (req,res) {
     //根据课堂id查询课堂信息
@@ -72,6 +74,31 @@ router.post('/:cid',function (req,res) {
         }
         res.json(resp);
     }).catch((err)=>{
+        resp.setError(err);
+        res.json(resp);
+    })
+})
+router.delete('/:id',function (req,res) {
+    var resp= new ResponseEntity();
+    co(function *() {
+        var payload = yield verifyTokenUtil.verifyToken(req.cookies.token);
+        if(payload.type==='3'){
+            var {id} = req.params;
+            if(ObjectID.isValid(id)){
+                var query = {_id:new ObjectID(id)};
+                yield lessonManage.delete(query);
+                yield commentManage.delete({lid:id});
+                yield remarksManage.delete({lid:id});
+            }else{
+                resp.setStatusCode(1);
+                resp.setMessage('课堂uid格式不正确');
+            }
+        }else{
+            resp.setStatusCode(1);
+            resp.setMessage('非法权限');
+        }
+        res.json(resp);
+    }).catch(err=>{
         resp.setError(err);
         res.json(resp);
     })

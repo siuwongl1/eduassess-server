@@ -53,6 +53,19 @@ var activityManage= {
             })
         })
         return promise;
+    },
+    delete(query){
+        var promise = new Promise((resovle,reject)=>{
+            co(function *() {
+                var db = yield MongoClient.connect(url);
+                var collection = db.collection('activities');
+                var result = yield collection.deleteMany(query);
+                resovle(result);
+            }).catch(err=>{
+                reject(err);
+            })
+        })
+        return promise;
     }
 }
 module.exports = activityManage;
