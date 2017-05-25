@@ -68,7 +68,7 @@ router.get('/period/:period/pro/:pro',function (req,res) {
                 result = yield findCourses(query);
                 for(var i=0;i<result.length;i++){
                     var cid = result[i].cid;
-                    query = {cid:cid};
+                    query = {cid:cid.toString()};
                     var comments= yield commentManage.find(query);
                     result[i].comments = comments.length;
                 }
