@@ -15,7 +15,7 @@ var verifyToken = (token) => {
                 var loginToken = yield client.get(userPayload.uid);
                 if (loginToken) {
                     if (token === loginToken) {
-                        client.expire(userPayload.uid,600);// refresh expire
+                        client.expire(userPayload.uid,600);// refresh access token
                         resolve(userPayload);
                     } else {
                         err.setMessage('用户登录信息已失效');

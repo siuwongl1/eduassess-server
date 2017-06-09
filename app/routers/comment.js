@@ -61,12 +61,11 @@ router.post('/:lid',function (req,res) {
         var {lid}  = req.params;  //课堂id
         if(ObjectID.isValid(lid)){
             var uid = payload.uid;
-            var {content,name,cid} = req.body;  //用户id，评论内容，评论人名称
+            var {content,name,cid,ratePrepare,rateInteraction,rateContent,rateAnswer} = req.body;  //用户id，评论内容，评论人名称
             if(ObjectID.isValid(uid)){
-                var data = {content:content,lid:lid,uid:uid,cid:cid,name:name,date:new Date()};
-                //Two phase commit in a transaction, I will fix this later .
+                var data = {content:content,lid:lid,uid:uid,cid:cid,name:name,date:new Date(),ratePrepare:ratePrepare,rateInteraction:rateInteraction,rateContent:rateContent,rateAnswer:rateAnswer};
                 var result = yield commentManage.add(data);  //添加评论内容
-                var activity = {uid:data.uid,cid:data.lid,type:'comment',date:data.date}
+                var activity = {uid:data.uid,cid:data.lid,type:'comment',date:data.date};
                 var activityResult= yield activityManage.add(activity); //添加我的动态信息
                 resp.setData(result);
             }else{
