@@ -1,4 +1,4 @@
-# 浙江工业大学毕业设计
+# ETS Server 
 
 > 课堂评教系统RESTful api
 
@@ -13,7 +13,3 @@
 6. jsonwebtoken
 ```
 
-## 功能模块
-``` bash
-目前正在开发用户相关api，后续api会持续开放。
-```
