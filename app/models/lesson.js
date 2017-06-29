@@ -2,18 +2,14 @@
  * Created by SiuWongLi on 17/4/12.
  */
 
-var MongoClient = require('mongodb').MongoClient
-    , assert = require('assert');
-var ObjectID = require('mongodb').ObjectID;
-// Connection URL
-var url = 'mongodb://localhost:27017/ets';
+var dbUtil = require('./../utils/DBUtil');
 var co = require('co');
 
 var lessonManage= {
     find:function (query) {
         var promise =new Promise((resolve,reject)=>{
             co(function *() {
-                var db = yield MongoClient.connect(url);
+                var db = yield dbUtil.getDb();
                 var collection = db.collection('lessons');
                 var result = yield collection.find(query).toArray();
                 yield db.close();
@@ -27,7 +23,7 @@ var lessonManage= {
     add:function (data) {
         var promise = new Promise((resolve,reject)=>{
             co(function *() {
-                var db = yield MongoClient.connect(url);
+                var db = yield dbUtil.getDb();
                 var collection = db.collection('lessons');
                 var result = yield collection.insertOne(data);
                 yield db.close();
@@ -41,7 +37,7 @@ var lessonManage= {
     update:function (query,data) {
         var promise = new Promise((resolve,reject)=>{
             co(function *() {
-                var db = yield MongoClient.connect(url);
+                var db = yield dbUtil.getDb();
                 var collection = db.collection('lessons');
                 var result = yield collection.updateOne(query,data);
                 yield db.close();
@@ -55,7 +51,7 @@ var lessonManage= {
     delete:function (query) {
         var promise = new Promise((resolve,reject)=>{
             co(function *() {
-                var db = yield MongoClient.connect(url);
+                var db = yield dbUtil.getDb();
                 var collection = db.collection('lessons');
                 var result = yield collection.deleteMany(query);
                 yield db.close();

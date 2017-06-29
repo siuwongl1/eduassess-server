@@ -1,18 +1,14 @@
 /**
  * Created by SiuWongLi on 17/4/7.
  */
-var MongoClient = require('mongodb').MongoClient
-    , assert = require('assert');
-var ObjectID = require('mongodb').ObjectID;
-// Connection URL
-var url = 'mongodb://localhost:27017/ets';
+var dbUtil = require('./../utils/DBUtil')
 var co = require('co');
 
 var courseManage = {
     find: (query) => {
         var promise = new Promise((resolve, reject) => {
             co(function *() {
-                var db = yield MongoClient.connect(url);
+                var db =yield dbUtil.getDb();
                 var collection = db.collection('courses');
                 var result = yield collection.find(query).toArray();
                 yield db.close();
@@ -26,7 +22,7 @@ var courseManage = {
     add: (course) => {
         var promise = new Promise((resolve, reject) => {
             co(function *() {
-                var db = yield MongoClient.connect(url);
+                var db =yield dbUtil.getDb();
                 var collection = db.collection('courses');
                 var result = yield collection.insertOne(course);
                 var insertedId = result.insertedId;
@@ -41,7 +37,7 @@ var courseManage = {
     update: (query,data) => {
         var promise = new Promise((resolve,reject)=>{
             co(function *() {
-                var db = yield MongoClient.connect(url);
+                var db =yield dbUtil.getDb();
                 var collection = db.collection('courses');
                 var result = yield collection.updateOne(query,{$set:data});
                 resolve(result);
@@ -55,7 +51,7 @@ var courseManage = {
     delete: (query) => {
         var promise = new Promise((resolve,reject)=>{
             co(function *() {
-                var db = yield MongoClient.connect(url);
+                var db =yield dbUtil.getDb();
                 var collection = db.collection('courses');
                 var result = yield collection.deleteOne(query);
                 yield db.close();
@@ -69,7 +65,7 @@ var courseManage = {
     push:(query,data)=>{
         var promise = new Promise((resolve,reject)=>{
             co(function *() {
-                var db = yield MongoClient.connect(url);
+                var db =yield dbUtil.getDb();
                 var collection = db.collection('courses');
                 var result =yield  collection.update(query,{$push:data})
                 yield db.close();
@@ -83,7 +79,7 @@ var courseManage = {
     pop:(query,data)=>{
         var promise = new Promise((resolve,reject)=>{
             co(function *() {
-                var db = yield MongoClient.connect(url);
+                var db =yield dbUtil.getDb();
                 var collection = db.collection('courses');
                 var result= yield collection.update(query,{$pop:data});
                 yield db.close();

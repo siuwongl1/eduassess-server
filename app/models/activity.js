@@ -1,18 +1,14 @@
 /**
  * Created by SiuWongLi on 17/5/4.
  */
-var MongoClient = require('mongodb').MongoClient
-    , assert = require('assert');
-var ObjectID = require('mongodb').ObjectID;
-// Connection URL
-var url = 'mongodb://localhost:27017/ets';
+var dbUtil = require('./../utils/DBUtil')
 var co = require('co');
 
 var activityManage= {
     find(query,selection){
         var promise = new Promise((resolve,reject)=>{
             co(function *() {
-                var db = yield MongoClient.connect(url);
+                var db = yield dbUtil.getDb();
                 var collection = db.collection('activities');
                 selection.sort = selection.sort ||{date:-1};
                 selection.skip = selection.skip || 0;
@@ -31,7 +27,7 @@ var activityManage= {
     add(data){
         var promise= new Promise((resolve,reject)=>{
             co(function *() {
-                var db = yield MongoClient.connect(url);
+                var db = yield dbUtil.getDb();
                 var collection = db.collection('activities');
                 var result = yield collection.insertOne(data);
                 resolve(result);
@@ -44,7 +40,7 @@ var activityManage= {
     update(query,data){
         var promise = new Promise((resovle,reject)=>{
             co(function *() {
-                var db = yield MongoClient.connect(url);
+                var db = yield dbUtil.getDb();
                 var collection = db.collection('activities');
                 var result = yield collection.updateOne(query,data);
                 resovle(result);
@@ -57,7 +53,7 @@ var activityManage= {
     delete(query){
         var promise = new Promise((resovle,reject)=>{
             co(function *() {
-                var db = yield MongoClient.connect(url);
+                var db = yield dbUtil.getDb();
                 var collection = db.collection('activities');
                 var result = yield collection.deleteMany(query);
                 resovle(result);

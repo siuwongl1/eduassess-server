@@ -3,15 +3,13 @@
  * 消息model
  */
 
-var MongoClient = require('mongodb').MongoClient
-    , assert = require('assert');
-var url = 'mongodb://localhost:27017/ets';
+var dbUtil = require('./../utils/DBUtil');
 var co = require('co');
 var noticeManage= {
     find:function (query) {
         var promise =new Promise((resolve,reject)=>{
             co(function *() {
-                var db = yield MongoClient.connect(url);
+                var db = yield dbUtil.getDb();
                 var collection = db.collection('notices');
                 var result = yield collection.find(query).toArray();
                 yield db.close();
@@ -25,7 +23,7 @@ var noticeManage= {
     add:function (data) {
         var promise = new Promise((resolve,reject)=>{
             co(function *() {
-                var db = yield MongoClient.connect(url);
+                var db = yield dbUtil.getDb();
                 var collection = db.collection('notices');
                 var result = yield collection.insertOne(data);
                 yield db.close();
@@ -39,7 +37,7 @@ var noticeManage= {
     update:function (query,data) {
         var promise = new Promise((resolve,reject)=>{
             co(function *() {
-                var db = yield MongoClient.connect(url);
+                var db = yield dbUtil.getDb();
                 var collection = db.collection('notices');
                 var result = yield collection.updateOne(query,data);
                 yield db.close();
@@ -53,7 +51,7 @@ var noticeManage= {
     delete:function (query) {
         var promise = new Promise((resolve,reject)=>{
             co(function *() {
-                var db = yield MongoClient.connect(url);
+                var db = yield dbUtil.getDb();
                 var collection = db.collection('notices');
                 var result = yield collection.deleteMany(query);
                 yield db.close();
